@@ -1,5 +1,7 @@
 # sms-admin-vue
 
+航空安全管理后台前端
+
 ## Project setup
 ```
 npm install
