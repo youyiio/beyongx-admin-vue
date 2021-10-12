@@ -8,7 +8,7 @@
 添加如下：
 
 [remote "gitlab"]
-	url = http://gitlab.youyi.io/youyiio/project_xxx.git
+	url = http://gitlab.xxxx.com/youyiio/project_xxx.git
 	fetch = +refs/heads/*:refs/remotes/origin/*
 
 ## git本地合并
@@ -46,14 +46,45 @@ git pull = git fetch + git merge
 
 冒号后面省略是时，合并到当前工作的分支
 
+## 分支新建及删除
+
+查看分支
+
+> git branch
+
+查看远程分支
+
+> git branch -r
+
+创建分支
+
+> git branch newbranch   
+
+#提交分支
+
+> git push gitlab newbranch:newbranch
+
+#删除分支
+
+> git branch -d newbranch
+
+#删除远程分支
+
+> git push gitlab --delete newbranch
+
 ## 标签新建及同步
 
 > git tag v1.0
 
-> git push --tag gitlab
+> git push gitlab --tag
 
-> git pull --tag gitlab
+> git pull gitlab --tag
 
+删除标签
+
+> git tag -d tagname
+
+删除远程标签与推送标签一样（本地删除后，同步）
 
 ## 分支项目或衍生项目更新
 
@@ -63,7 +94,7 @@ git pull = git fetch + git merge
 
 配置.git\config
 [remote "base"]
-	url = http://gitlab.youyi.io/youyiio/basexxx(根据实际修改).git
+	url = http://gitlab.xxxx.com/youyiio/basexxx(根据实际修改).git
 	fetch = +refs/heads/*:refs/remotes/origin/*
 
 若base项目更新时，做合并更新有2种方法:
