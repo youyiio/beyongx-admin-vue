@@ -49,12 +49,12 @@
 
       <div style="position:relative">
         <div class="tips">
-          <span>Username : admin</span>
-          <span>Password : any</span>
+          <span>账号 : admin@beyongx.com</span>
+          <span>密码 : 888888</span>
         </div>
         <div class="tips">
-          <span style="margin-right:18px;">Username : editor</span>
-          <span>Password : any</span>
+          <span style="margin-right:18px;">账号 : 18888888888</span>
+          <span>密码 : 888888</span>
         </div>
 
         <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
@@ -97,7 +97,7 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
+        username: 'admin@beyongx.com',
         password: ''
       },
       loginRules: {
