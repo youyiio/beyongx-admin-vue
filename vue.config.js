@@ -42,7 +42,7 @@ module.exports = {
     },
     proxy: {
       '/dev-api': {
-        target: 'http://localhost:8080',
+        target: 'http://demo-test.beyongcms.com',
         changeOrigin: true,
         pathRewrite: {
           '^/dev-api': '/'

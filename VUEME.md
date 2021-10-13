@@ -2,29 +2,30 @@
 
 beyongx管理后台前端（Vue版本）
 
-## Vue创建项目
-```
-vue create beyongx-admin-vue
-```
+## 创建项目
 
-## Vue使用帮助
+创建项目
+> vue create beyongx-admin-vue
+
+使用帮助
 ```
 vue --help
 vue --version
 ```
 
-## 项目安装依赖
+### 安装依赖
+
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### 开发模式,支持热加载（Compiles and hot-reloads for development）
 
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### 打包正式部署（Compiles and minifies for production）
 
 ```
 npm run build
@@ -35,11 +36,11 @@ npm run build
 npm run lint
 ```
 
-### 自动义配置
+### 自定义配置
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
-## 本项目
+## 项目开发
 
 ### 安装
 
@@ -52,4 +53,4 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### api代理设置
 
-vue.config.js -> proxy
+修改vue.config.js 的 proxy 配置
