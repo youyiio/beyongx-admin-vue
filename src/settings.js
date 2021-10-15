@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  title: 'Beyongx通用后台管理平台',
 
   /**
    * @type {boolean} true | false
