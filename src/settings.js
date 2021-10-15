@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Beyongx通用后台管理平台',
+  title: 'Beyongx-后台管理',
 
   /**
    * @type {boolean} true | false
