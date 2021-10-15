@@ -7,7 +7,7 @@ Vue.use(Router)
 import Layout from '@/layout'
 
 /* Router Modules */
-import contentRouter from './modules/content'
+import cmsRouter from './modules/cms'
 import operationRouter from './modules/operation'
 import systemRouter from './modules/system'
 
@@ -103,7 +103,7 @@ export const constantRoutes = [
  * the routes that need to be dynamically loaded based on user roles
  */
 export const asyncRoutes = [
-  contentRouter,
+  cmsRouter,
   operationRouter,
   systemRouter,
 

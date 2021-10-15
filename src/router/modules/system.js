@@ -7,7 +7,7 @@ const systemRouter = {
   component: Layout,
   redirect: 'noRedirect',
   name: 'System',
-  meta: { title: '系统管理', icon: '' },
+  meta: { title: '系统管理', icon: 'el-icon-setting' },
   children: [
     {
       path: 'user',

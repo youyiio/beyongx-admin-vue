@@ -7,7 +7,7 @@ const operationRouter = {
   component: Layout,
   redirect: 'noRedirect',
   name: 'Operation',
-  meta: { title: '运维管理', icon: '' },
+  meta: { title: '运维管理', icon: 'el-icon-data-line' },
   children: [
     {
       path: 'server',

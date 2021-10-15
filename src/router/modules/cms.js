@@ -2,12 +2,12 @@
 
 import Layout from '@/layout'
 
-const contentRouter = {
-  path: '/content',
+const cmsRouter = {
+  path: '/cms',
   component: Layout,
   redirect: 'noRedirect',
-  name: 'Content',
-  meta: { title: '内容管理', icon: '' },
+  name: 'Cms',
+  meta: { title: '内容管理', icon: 'el-icon-document' },
   children: [
     {
       path: 'article',
@@ -36,4 +36,4 @@ const contentRouter = {
   ]
 }
 
-export default contentRouter
+export default cmsRouter
