@@ -8,8 +8,12 @@ const getters = {
   avatar: state => state.user.avatar,
   name: state => state.user.name,
   introduction: state => state.user.introduction,
+  user: state => state.user.user,
   roles: state => state.user.roles,
-  permission_routes: state => state.permission.routes,
+  loadMenus: state => state.user.loadMenus,
+  permission_routers: state => state.permission.routers,
+  addRouters: state => state.permission.addRouters,
+  sidebarRouters: state => state.permission.sidebarRouters,
   errorLogs: state => state.errorLog.logs
 }
 export default getters

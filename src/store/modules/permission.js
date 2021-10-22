@@ -1,69 +1,83 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { constantRoutes } from '@/router/routers'
+import Layout from '@/layout'
+import ParentView from '@/components/ParentView'
 
-/**
- * Use meta.role to determine if the current user has permission
- * @param roles
- * @param route
- */
-function hasPermission(roles, route) {
-  if (route.meta && route.meta.roles) {
-    return roles.some(role => route.meta.roles.includes(role))
-  } else {
-    return true
-  }
-}
-
-/**
- * Filter asynchronous routing tables by recursion
- * @param routes asyncRoutes
- * @param roles
- */
-export function filterAsyncRoutes(routes, roles) {
-  const res = []
-
-  routes.forEach(route => {
-    const tmp = { ...route }
-    if (hasPermission(roles, tmp)) {
-      if (tmp.children) {
-        tmp.children = filterAsyncRoutes(tmp.children, roles)
-      }
-      res.push(tmp)
+const permission = {
+  state: {
+    routers: constantRoutes,
+    addRouters: [],
+    sidebarRouters: []
+  },
+  mutations: {
+    SET_ROUTERS: (state, routers) => {
+      state.addRouters = routers
+      state.routers = constantRoutes.concat(routers)
+    },
+    SET_SIDEBAR_ROUTERS: (state, routers) => {
+      state.sidebarRouters = constantRoutes.concat(routers)
     }
-  })
-
-  return res
-}
-
-const state = {
-  routes: [],
-  addRoutes: []
-}
-
-const mutations = {
-  SET_ROUTES: (state, routes) => {
-    state.addRoutes = routes
-    state.routes = constantRoutes.concat(routes)
+  },
+  actions: {
+    GenerateRoutes({ commit }, asyncRouter) {
+      commit('SET_ROUTERS', asyncRouter)
+    },
+    SetSidebarRouters({ commit }, sidebarRouter) {
+      commit('SET_SIDEBAR_ROUTERS', sidebarRouter)
+    }
   }
 }
 
-const actions = {
-  generateRoutes({ commit }, roles) {
-    return new Promise(resolve => {
-      let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes || []
+export const filterAsyncRouter = (routers, lastRouter = false, type = false) => { // 遍历后台传来的路由字符串，转换为组件对象
+  return routers.filter(router => {
+    if (type && router.children) {
+      router.children = filterChildren(router.children)
+    }
+    if (router.component) {
+      if (router.component === 'Layout') { // Layout组件特殊处理
+        router.component = Layout
+      } else if (router.component === 'ParentView') {
+        router.component = ParentView
       } else {
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
+        const component = router.component
+        router.component = loadView(component)
       }
-      commit('SET_ROUTES', accessedRoutes)
-      resolve(accessedRoutes)
-    })
-  }
+    }
+    if (router.children != null && router.children && router.children.length) {
+      router.children = filterAsyncRouter(router.children, router, type)
+    } else {
+      delete router['children']
+      delete router['redirect']
+    }
+    return true
+  })
 }
 
-export default {
-  namespaced: true,
-  state,
-  mutations,
-  actions
+function filterChildren(childrenMap, lastRouter = false) {
+  var children = []
+  childrenMap.forEach((el, index) => {
+    if (el.children && el.children.length) {
+      if (el.component === 'ParentView') {
+        el.children.forEach(c => {
+          c.path = el.path + '/' + c.path
+          if (c.children && c.children.length) {
+            children = children.concat(filterChildren(c.children, c))
+            return
+          }
+          children.push(c)
+        })
+        return
+      }
+    }
+    if (lastRouter) {
+      el.path = lastRouter.path + '/' + el.path
+    }
+    children = children.concat(el)
+  })
+  return children
 }
+
+export const loadView = (view) => {
+  return (resolve) => require([`@/views/${view}`], resolve)
+}
+
+export default permission
