@@ -57,13 +57,13 @@ const user = {
       })
     },
     // 登出
-    LogOut({ commit }) {
+    Logout({ commit }) {
       return new Promise((resolve, reject) => {
         logout().then(res => {
-          logOut(commit)
+          setLogout(commit)
           resolve()
         }).catch(error => {
-          logOut(commit)
+          setLogout(commit)
           reject(error)
         })
       })
@@ -77,7 +77,7 @@ const user = {
   }
 }
 
-export const logOut = (commit) => {
+export const setLogout = (commit) => {
   commit('SET_TOKEN', '')
   commit('SET_ROLES', [])
   removeToken()

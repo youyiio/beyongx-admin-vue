@@ -5,7 +5,7 @@ import NProgress from 'nprogress' // 引入进度条插件
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
 import { buildMenus } from '@/api/menu'
-import { filterAsyncRouter } from '@/store/modules/permission'
+import { filterAsyncRoutes } from '@/store/modules/permission'
 
 NProgress.configure({ showSpinner: false })
 
@@ -22,16 +22,17 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' }) // 登录页有Token直接跳转
       NProgress.done() // 进度条结束
     } else {
-      if (store.getters.roles.length === 0) {
-        store.dispatch('GetInfo').then(() => {
-          loadMenus(next, to)
+      if (store.getters.roles.length === 0) { // 判断登录用户是否有角色权限信息
+        store.dispatch('GetInfo').then(() => { // 拉取用户信息
+          loadMenus(next, to) // 动态路由，拉取菜单信息
         }).catch(() => {
           store.dispatch('LogOut').then(() => {
             location.reload() // 为了重新实例化vue-router对象 避免bug
           })
         })
+      // 登录时未拉取菜单，在此处拉取
       } else if (store.getters.loadMenus) {
-        // 修改成false，防止死循环
+        // loadMenus修改成false，防止死循环
         store.dispatch('UpdateLoadMenus')
         loadMenus(next, to)
       } else {
@@ -64,10 +65,10 @@ export const loadMenus = (next, to) => {
       'path': '/cms',
       'redirect': 'noredirect',
       'children': [
-        { 'component': 'system/user/index', 'hidden': false, 'meta': { 'icon': 'peoples', 'noCache': true, 'title': '文章管理' }, 'name': 'User', 'path': 'user' },
-        { 'component': 'system/role/index', 'hidden': false, 'meta': { 'icon': 'role', 'noCache': true, 'title': '评论管理' }, 'name': 'Role', 'path': 'role' },
-        { 'component': 'system/menu/index', 'hidden': false, 'meta': { 'icon': 'menu', 'noCache': true, 'title': '文章分类' }, 'name': 'Menu', 'path': 'menu' },
-        { 'component': 'system/dept/index', 'hidden': false, 'meta': { 'icon': 'dept', 'noCache': true, 'title': '广告管理' }, 'name': 'Dept', 'path': 'dept' }
+        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'peoples', 'noCache': true, 'title': '文章管理' }, 'name': 'User', 'path': 'user' },
+        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'role', 'noCache': true, 'title': '评论管理' }, 'name': 'Role', 'path': 'role' },
+        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'menu', 'noCache': true, 'title': '文章分类' }, 'name': 'Menu', 'path': 'menu' },
+        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'dept', 'noCache': true, 'title': '广告管理' }, 'name': 'Dept', 'path': 'dept' }
       ]
     },
     {
@@ -105,8 +106,8 @@ export const loadMenus = (next, to) => {
     }]
     const sdata = JSON.parse(JSON.stringify(res))
     const rdata = JSON.parse(JSON.stringify(res))
-    const sidebarRoutes = filterAsyncRouter(sdata)
-    const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+    const sidebarRoutes = filterAsyncRoutes(sdata)
+    const rewriteRoutes = filterAsyncRoutes(rdata, false, true)
     // const sidebarRoutes = []
     // const rewriteRoutes = []
     rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
@@ -115,6 +116,6 @@ export const loadMenus = (next, to) => {
       router.addRoutes(rewriteRoutes) // 动态添加可访问路由表
       next({ ...to, replace: true })
     })
-    store.dispatch('SetSidebarRouters', sidebarRoutes)
+    store.dispatch('SetSidebarRoutes', sidebarRoutes)
   })
 }

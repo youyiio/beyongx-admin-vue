@@ -4,55 +4,55 @@ import ParentView from '@/components/ParentView'
 
 const permission = {
   state: {
-    routers: constantRoutes,
-    addRouters: [],
-    sidebarRouters: []
+    routes: constantRoutes,
+    addRoutes: [],
+    sidebarRoutes: []
   },
   mutations: {
-    SET_ROUTERS: (state, routers) => {
-      state.addRouters = routers
-      state.routers = constantRoutes.concat(routers)
+    SET_ROUTES: (state, routes) => {
+      state.addRoutes = routes
+      state.routes = constantRoutes.concat(routes)
     },
-    SET_SIDEBAR_ROUTERS: (state, routers) => {
-      state.sidebarRouters = constantRoutes.concat(routers)
+    SET_SIDEBAR_ROUTES: (state, routes) => {
+      state.sidebarRoutes = constantRoutes.concat(routes)
     }
   },
   actions: {
-    GenerateRoutes({ commit }, asyncRouter) {
-      commit('SET_ROUTERS', asyncRouter)
+    GenerateRoutes({ commit }, asyncRoute) {
+      commit('SET_ROUTES', asyncRoute)
     },
-    SetSidebarRouters({ commit }, sidebarRouter) {
-      commit('SET_SIDEBAR_ROUTERS', sidebarRouter)
+    SetSidebarRoutes({ commit }, sidebarRoute) {
+      commit('SET_SIDEBAR_ROUTES', sidebarRoute)
     }
   }
 }
 
-export const filterAsyncRouter = (routers, lastRouter = false, type = false) => { // 遍历后台传来的路由字符串，转换为组件对象
-  return routers.filter(router => {
-    if (type && router.children) {
-      router.children = filterChildren(router.children)
+export const filterAsyncRoutes = (routes, lastRoute = false, type = false) => { // 遍历后台传来的路由字符串，转换为组件对象
+  return routes.filter(route => {
+    if (type && route.children) {
+      route.children = filterChildren(route.children)
     }
-    if (router.component) {
-      if (router.component === 'Layout') { // Layout组件特殊处理
-        router.component = Layout
-      } else if (router.component === 'ParentView') {
-        router.component = ParentView
+    if (route.component) {
+      if (route.component === 'Layout') { // Layout组件特殊处理
+        route.component = Layout
+      } else if (route.component === 'ParentView') {
+        route.component = ParentView
       } else {
-        const component = router.component
-        router.component = loadView(component)
+        const component = route.component
+        route.component = loadView(component)
       }
     }
-    if (router.children != null && router.children && router.children.length) {
-      router.children = filterAsyncRouter(router.children, router, type)
+    if (route.children != null && route.children && route.children.length) {
+      route.children = filterAsyncRoutes(route.children, route, type)
     } else {
-      delete router['children']
-      delete router['redirect']
+      delete route['children']
+      delete route['redirect']
     }
     return true
   })
 }
 
-function filterChildren(childrenMap, lastRouter = false) {
+function filterChildren(childrenMap, lastRoute = false) {
   var children = []
   childrenMap.forEach((el, index) => {
     if (el.children && el.children.length) {
@@ -68,8 +68,8 @@ function filterChildren(childrenMap, lastRouter = false) {
         return
       }
     }
-    if (lastRouter) {
-      el.path = lastRouter.path + '/' + el.path
+    if (lastRoute) {
+      el.path = lastRoute.path + '/' + el.path
     }
     children = children.concat(el)
   })
