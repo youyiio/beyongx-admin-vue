@@ -26,7 +26,7 @@ router.beforeEach((to, from, next) => {
         store.dispatch('GetInfo').then(() => { // 拉取用户信息
           loadMenus(next, to) // 动态路由，拉取菜单信息
         }).catch(() => {
-          store.dispatch('LogOut').then(() => {
+          store.dispatch('Logout').then(() => {
             location.reload() // 为了重新实例化vue-router对象 避免bug
           })
         })
@@ -65,10 +65,10 @@ export const loadMenus = (next, to) => {
       'path': '/cms',
       'redirect': 'noredirect',
       'children': [
-        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'peoples', 'noCache': true, 'title': '文章管理' }, 'name': 'User', 'path': 'user' },
-        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'role', 'noCache': true, 'title': '评论管理' }, 'name': 'Role', 'path': 'role' },
-        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'menu', 'noCache': true, 'title': '文章分类' }, 'name': 'Menu', 'path': 'menu' },
-        { 'component': 'example/list', 'hidden': false, 'meta': { 'icon': 'dept', 'noCache': true, 'title': '广告管理' }, 'name': 'Dept', 'path': 'dept' }
+        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章管理' }, 'name': 'Article', 'path': 'articleList' },
+        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
+        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章分类' }, 'name': 'Category', 'path': 'categoryList' },
+        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '广告管理' }, 'name': 'Ad', 'path': 'AdList' }
       ]
     },
     {
