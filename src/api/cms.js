@@ -4,10 +4,11 @@
 import request from '@/utils/request'
 
 // 查询文章列表
-export function articleList() {
+export function articleList(data) {
   return request({
     url: '/article/list',
-    method: 'post'
+    method: 'get',
+    params: data
   })
 }
 
