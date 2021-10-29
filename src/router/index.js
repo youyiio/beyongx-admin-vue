@@ -30,7 +30,7 @@ router.beforeEach((to, from, next) => {
             location.reload() // 为了重新实例化vue-router对象 避免bug
           })
         })
-      // 登录时未拉取菜单，在此处拉取
+        // 登录时未拉取菜单，在此处拉取
       } else if (store.getters.loadMenus) {
         // loadMenus修改成false，防止死循环
         store.dispatch('UpdateLoadMenus')
@@ -63,10 +63,10 @@ export const loadMenus = (next, to) => {
       'meta': { 'icon': 'el-icon-news', 'noCache': true, 'title': '内容管理' },
       'name': '内容管理',
       'path': '/cms',
-      'redirect': 'noredirect',
+      'redirect': 'noRedirect',
       'children': [
         { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章管理' }, 'name': 'Article', 'path': 'articleList' },
-        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
+        { 'component': 'comment/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
         { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章分类' }, 'name': 'Category', 'path': 'categoryList' },
         { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '广告管理' }, 'name': 'Ad', 'path': 'AdList' }
       ]
@@ -77,12 +77,12 @@ export const loadMenus = (next, to) => {
       'hidden': false,
       'meta': { 'icon': 'el-icon-data-line', 'noCache': true, 'title': '运维管理' },
       'name': '运维管理',
-      'path': '/monitor',
-      'redirect': 'noredirect',
+      'path': '/operation',
+      'redirect': 'noRedirect',
       'children': [
-        { 'component': 'monitor/online/index', 'hidden': false, 'meta': { 'icon': 'Steve-Jobs', 'noCache': true, 'title': '服务器监控' }, 'name': 'OnlineUser', 'path': 'online' },
-        { 'component': 'monitor/log/index', 'hidden': false, 'meta': { 'icon': 'log', 'noCache': false, 'title': '操作日志' }, 'name': 'Log', 'path': 'logs' },
-        { 'component': 'monitor/log/errorLog', 'hidden': false, 'meta': { 'icon': 'error', 'noCache': true, 'title': '数据库管理' }, 'name': 'ErrorLog', 'path': 'errorLog' }
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '服务器监控' }, 'name': 'Serve', 'path': 'serve' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': false, 'title': '操作日志' }, 'name': 'Logs', 'path': 'logs' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '数据库管理' }, 'name': 'SqlData', 'path': 'sqlData' }
       ]
 
     },
@@ -93,14 +93,14 @@ export const loadMenus = (next, to) => {
       'meta': { 'icon': 'el-icon-setting', 'noCache': true, 'title': '系统管理' },
       'name': '系统管理',
       'path': '/system',
-      'redirect': 'noredirect',
+      'redirect': 'noRedirect',
       'children': [
-        { 'component': 'monitor/online/index', 'hidden': false, 'meta': { 'icon': 'Steve-Jobs', 'noCache': true, 'title': '用户管理' }, 'name': 'OnlineUser', 'path': 'online' },
-        { 'component': 'monitor/log/index', 'hidden': false, 'meta': { 'icon': 'log', 'noCache': false, 'title': '角色管理' }, 'name': 'Log', 'path': 'logs' },
-        { 'component': 'monitor/log/errorLog', 'hidden': false, 'meta': { 'icon': 'error', 'noCache': true, 'title': '菜单管理' }, 'name': 'ErrorLog', 'path': 'errorLog' },
-        { 'component': 'monitor/server/index', 'hidden': false, 'meta': { 'icon': 'codeConsole', 'noCache': true, 'title': '部门管理' }, 'name': 'ServerMonitor', 'path': 'server' },
-        { 'component': 'monitor/sql/index', 'hidden': true, 'meta': { 'icon': 'sqlMonitor', 'noCache': true, 'title': '岗位管理' }, 'name': 'Sql', 'path': 'druid' },
-        { 'component': 'monitor/sql/index', 'hidden': true, 'meta': { 'icon': 'sqlMonitor', 'noCache': true, 'title': '字典管理' }, 'name': 'Sql', 'path': 'druid' }
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '用户管理' }, 'name': 'User', 'path': 'user' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': false, 'title': '角色管理' }, 'name': 'Roles', 'path': 'roles' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '菜单管理' }, 'name': 'Menus', 'path': 'menus' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '部门管理' }, 'name': 'Department', 'path': 'department' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '岗位管理' }, 'name': 'Gangwei', 'path': 'gangwei' },
+        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '字典管理' }, 'name': 'Dict', 'path': 'dict' }
       ]
 
     }]

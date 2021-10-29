@@ -73,6 +73,13 @@ const user = {
       return new Promise((resolve, reject) => {
         commit('SET_LOAD_MENUS', false)
       })
+    },
+
+    ResetToken({ commit }) {
+      return new Promise(resolve => {
+        setLogout(commit)
+        resolve()
+      })
     }
   }
 }

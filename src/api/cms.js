@@ -4,13 +4,15 @@
 import request from '@/utils/request'
 
 // 查询文章列表
-export function articleList() {
+export function articleList(data) {
   return request({
     url: '/article/list',
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 
+// 创建新文章
 export function createArticle() {
   return request({
     url: '/article/create',
@@ -18,6 +20,7 @@ export function createArticle() {
   })
 }
 
+// 编辑文章
 export function editArticle() {
   return request({
     url: '/article/edit',
@@ -25,13 +28,16 @@ export function editArticle() {
   })
 }
 
-export function publishArticle() {
+// 发布文章
+export function publishArticle(data) {
   return request({
     url: '/article/publish',
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 
+// 审核文章
 export function auditArticle() {
   return request({
     url: '/article/audit',
@@ -39,9 +45,11 @@ export function auditArticle() {
   })
 }
 
-export function deleteArticle() {
+// 删除文章
+export function deleteArticle(data) {
   return request({
     url: '/article/delete',
-    method: 'post'
+    method: 'delete',
+    data
   })
 }
