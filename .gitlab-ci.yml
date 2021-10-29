@@ -37,6 +37,7 @@ deploy_for_ci_job:
   script:
     - pwd
     - ls -l
+    - scl enable devtoolset-9 bash #启用高版本的gcc g++
     - npm install
     - npm run build:stage
     - tar -czf $bundle_name index.html favicon.ico dist/static
