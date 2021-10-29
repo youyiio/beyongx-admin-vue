@@ -63,10 +63,10 @@ export const loadMenus = (next, to) => {
       'meta': { 'icon': 'el-icon-news', 'noCache': true, 'title': '内容管理' },
       'name': '内容管理',
       'path': '/cms',
-      'redirect': 'noredirect',
+      'redirect': 'noRedirect',
       'children': [
         { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章管理' }, 'name': 'Article', 'path': 'articleList' },
-        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
+        { 'component': 'comment/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
         { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章分类' }, 'name': 'Category', 'path': 'categoryList' },
         { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '广告管理' }, 'name': 'Ad', 'path': 'AdList' }
       ]
@@ -78,7 +78,7 @@ export const loadMenus = (next, to) => {
       'meta': { 'icon': 'el-icon-data-line', 'noCache': true, 'title': '运维管理' },
       'name': '运维管理',
       'path': '/operation',
-      'redirect': 'noredirect',
+      'redirect': 'noRedirect',
       'children': [
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '服务器监控' }, 'name': 'Serve', 'path': 'serve' },
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': false, 'title': '操作日志' }, 'name': 'Logs', 'path': 'logs' },
@@ -93,7 +93,7 @@ export const loadMenus = (next, to) => {
       'meta': { 'icon': 'el-icon-setting', 'noCache': true, 'title': '系统管理' },
       'name': '系统管理',
       'path': '/system',
-      'redirect': 'noredirect',
+      'redirect': 'noRedirect',
       'children': [
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '用户管理' }, 'name': 'User', 'path': 'user' },
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': false, 'title': '角色管理' }, 'name': 'Roles', 'path': 'roles' },

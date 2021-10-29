@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.filters.title" placeholder="标题" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.filters.content" placeholder="内容" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.filters.status" style="width: 140px" class="filter-item" clearable @change="handleFilter">
         <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
       </el-select>
@@ -16,9 +16,9 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" min-width="150px">
+      <el-table-column label="内容" min-width="150px">
         <template slot-scope="{ row }">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
+          <span class="link-type" @click="handleUpdate(row)">{{ row.content }}</span>
         </template>
       </el-table-column>
       <el-table-column label="作者" width="110px" align="center">
@@ -29,17 +29,6 @@
       <el-table-column label="创建日期" width="150px" align="center">
         <template slot-scope="{ row }">
           <span>{{ row.createTime | parseTime("{y}-{m}-{d} {h}:{i}") }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="发布日期" width="150px" align="center">
-        <template slot-scope="{ row }">
-          <span>{{ row.postTime | parseTime("{y}-{m}-{d} {h}:{i}") }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="阅读量" align="center" width="95">
-        <template slot-scope="{ row }">
-          <span v-if="row.readCount" class="link-type">{{ row.readCount }}</span>
-          <span v-else>0</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" class-name="status-col" width="100">
@@ -141,12 +130,12 @@
 </template>
 
 <script>
-import { articleList, createArticle, editArticle, publishArticle, deleteArticle } from '@/api/cms'
+import { commentList, publishComment, editComment, deleteComment, createComment } from '@/api/comment'
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'ArticleList',
+  name: 'CommentList',
   components: { Pagination },
   filters: {
     statusFilter(status) {
@@ -172,7 +161,7 @@ export default {
         page: 1,
         size: 20,
         filters: {
-          title: undefined,
+          content: undefined,
           status: undefined
         }
       },
@@ -217,10 +206,10 @@ export default {
     this.getList()
   },
   methods: {
-    // 获取文章列表
+    // 获取评论列表
     getList() {
       this.listLoading = true
-      articleList(this.listQuery).then((response) => {
+      commentList(this.listQuery).then((response) => {
         this.list = response.data.data
         this.total = response.data.total
 
@@ -230,15 +219,15 @@ export default {
         }, 1.5 * 1000)
       })
     },
-    // 根据条件获取文章列表
+    // 根据条件获取评论列表
     handleFilter() {
       this.listQuery.page = 1
       this.getList()
     },
-    // 发布文章
+    // 发布评论
     handlePublish(row) {
       const publishParams = { id: row.id }
-      publishArticle(publishParams).then((response) => {
+      publishComment(publishParams).then((response) => {
         this.$message({
           message: '操作Success',
           type: 'success'
@@ -249,7 +238,7 @@ export default {
     // 删除文章
     handleDelete(row, index) {
       const deleteParams = { id: row.id }
-      deleteArticle(deleteParams).then((response) => {
+      deleteComment(deleteParams).then((response) => {
         this.$notify({
           title: 'Success',
           message: 'Delete Successfully',
@@ -284,7 +273,7 @@ export default {
         if (valid) {
           this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
           this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
+          createComment(this.temp).then(() => {
             this.list.unshift(this.temp)
             this.dialogFormVisible = false
             this.$notify({
@@ -311,7 +300,7 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          editArticle(tempData).then(() => {
+          editComment(tempData).then(() => {
             const index = this.list.findIndex((v) => v.id === this.temp.id)
             this.list.splice(index, 1, this.temp)
             this.dialogFormVisible = false
