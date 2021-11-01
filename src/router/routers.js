@@ -56,7 +56,8 @@ export const constantRoutes = [
 const router = new Router(
   {
     // mode: 'hash',
-    mode: 'history',
+    // mode: 'history',
+    mode: process.env.VUE_ROUTER_MODE,
     scrollBehavior: () => ({ y: 0 }),
     routes: constantRoutes
   }
