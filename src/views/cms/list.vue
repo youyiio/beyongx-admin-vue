@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.filters.title" placeholder="标题" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.filters.keyword" placeholder="标题" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.filters.status" style="width: 140px" class="filter-item" clearable @change="handleFilter">
         <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
       </el-select>
@@ -10,7 +10,7 @@
       <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload"> 导出 </el-button>
     </div>
 
-    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%" @sort-change="sortChange">
+    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
       <el-table-column label="ID" prop="id" align="center" width="80">
         <template slot-scope="{ row }">
           <span>{{ row.id }}</span>
@@ -18,7 +18,7 @@
       </el-table-column>
       <el-table-column label="标题" min-width="150px">
         <template slot-scope="{ row }">
-          <span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
+          <span class="link-type" @click="handleDetail(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
       <el-table-column label="作者" width="110px" align="center">
@@ -57,6 +57,10 @@
     </el-table>
 
     <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getList" />
+
+    <el-dialog :title="detaileTitle" :visible.sync="dialogDetailVisible">
+      <div v-html="content" />
+    </el-dialog>
 
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
       <el-form
@@ -141,7 +145,7 @@
 </template>
 
 <script>
-import { articleList, createArticle, editArticle, publishArticle, deleteArticle } from '@/api/cms'
+import { articleList, getArticle, createArticle, editArticle, publishArticle, deleteArticle } from '@/api/cms'
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -172,11 +176,14 @@ export default {
         page: 1,
         size: 20,
         filters: {
-          title: undefined,
+          keyword: undefined,
           status: undefined
         }
       },
       statusOptions: [-1, 0, 1, 2, 3, 4, 5],
+      detaileTitle: '',
+      dialogDetailVisible: false,
+      content: '',
       temp: {
         id: undefined,
         importance: 1,
@@ -221,7 +228,7 @@ export default {
     getList() {
       this.listLoading = true
       articleList(this.listQuery).then((response) => {
-        this.list = response.data.data
+        this.list = response.data.records
         this.total = response.data.total
 
         // Just to simulate the time of the request
@@ -257,6 +264,14 @@ export default {
           duration: 2000
         })
         this.list.splice(index, 1)
+      })
+    },
+
+    handleDetail(row) {
+      this.dialogDetailVisible = true
+      getArticle(row.id).then((response) => {
+        this.detaileTitle = response.data.title
+        this.content = response.data.content
       })
     },
 

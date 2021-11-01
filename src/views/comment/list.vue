@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.filters.content" placeholder="内容" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="listQuery.filters.keyword" placeholder="内容" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-select v-model="listQuery.filters.status" style="width: 140px" class="filter-item" clearable @change="handleFilter">
         <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
       </el-select>
@@ -10,7 +10,7 @@
       <el-button :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload"> 导出 </el-button>
     </div>
 
-    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%" @sort-change="sortChange">
+    <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
       <el-table-column label="ID" prop="id" align="center" width="80">
         <template slot-scope="{ row }">
           <span>{{ row.id }}</span>
@@ -161,7 +161,7 @@ export default {
         page: 1,
         size: 20,
         filters: {
-          content: undefined,
+          keyword: undefined,
           status: undefined
         }
       },
@@ -210,7 +210,7 @@ export default {
     getList() {
       this.listLoading = true
       commentList(this.listQuery).then((response) => {
-        this.list = response.data.data
+        this.list = response.data.records
         this.total = response.data.total
 
         // Just to simulate the time of the request
