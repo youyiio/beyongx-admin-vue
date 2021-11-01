@@ -12,6 +12,14 @@ export function articleList(data) {
   })
 }
 
+// 获取文章详情
+export function getArticle(id) {
+  return request({
+    url: '/article/' + id,
+    method: 'get'
+  })
+}
+
 // 创建新文章
 export function createArticle() {
   return request({
