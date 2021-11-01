@@ -30,5 +30,5 @@ rm -fr $deploy_path/*
 
 
 if [ "$deploy_first" = true ]; then
-
+  deploy_first=false
 fi
