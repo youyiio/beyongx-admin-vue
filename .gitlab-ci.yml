@@ -38,8 +38,7 @@ deploy_for_ci_job:
     - pwd
     - ls -l
     - scl enable devtoolset-9 bash #启用高版本的gcc g++
-    - scl enable devtoolset-9 bash && eval "$(ssh-agent)" && ssh-add ~/.ssh/id_rsa_youyiio && npm install && npm run build:stage
-    #- scl enable devtoolset-9 bash && npm run build:stage
+    - scl enable devtoolset-9 bash && eval "$(ssh-agent)" && ssh-add ~/.ssh/id_rsa_youyiio && cnpm install && cnpm run build:stage
     - tar -czf $bundle_name index.html favicon.ico dist/static
     - ls -l ./
     - echo ${ci_server_ip}
@@ -58,8 +57,9 @@ deploy_for_cd_job:
   script:
     - pwd
     - ls -l
-    - composer install
-    - tar -czf $bundle_name addons application config data extend public route thinkphp vendor .env build.php check_env.sh start_*
+    - scl enable devtoolset-9 bash #启用高版本的gcc g++
+    - scl enable devtoolset-9 bash && eval "$(ssh-agent)" && ssh-add ~/.ssh/id_rsa_youyiio && cnpm install && cnpm run build:prod
+    - tar -czf $bundle_name index.html favicon.ico dist/static
     - ls -l ./
     - echo ${cd_server_ip}
     - echo $cd_ssh_port
