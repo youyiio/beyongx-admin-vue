@@ -39,7 +39,7 @@ deploy_for_ci_job:
     - ls -l
     - scl enable devtoolset-9 bash #启用高版本的gcc g++
     - scl enable devtoolset-9 bash && eval "$(ssh-agent)" && ssh-add ~/.ssh/id_rsa_youyiio && cnpm install && cnpm run build:stage
-    - tar -czf $bundle_name index.html favicon.ico dist/static
+    - tar -czf $bundle_name -C ./dist index.html favicon.ico static
     - ls -l ./
     - echo ${ci_server_ip}
     - echo $ci_ssh_port
@@ -59,7 +59,7 @@ deploy_for_cd_job:
     - ls -l
     - scl enable devtoolset-9 bash #启用高版本的gcc g++
     - scl enable devtoolset-9 bash && eval "$(ssh-agent)" && ssh-add ~/.ssh/id_rsa_youyiio && cnpm install && cnpm run build:prod
-    - tar -czf $bundle_name index.html favicon.ico dist/static
+    - tar -czf $bundle_name -C ./dist index.html favicon.ico static
     - ls -l ./
     - echo ${cd_server_ip}
     - echo $cd_ssh_port
