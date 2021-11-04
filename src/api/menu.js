@@ -5,7 +5,7 @@ import request from '@/utils/request'
 
 export function buildMenus() {
   return request({
-    url: 'user/getInfo',
+    url: 'ucenter/getInfo',
     method: 'get'
   })
 }

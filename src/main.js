@@ -5,9 +5,9 @@ import Cookies from 'js-cookie'
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets (css样式初始化)
 
 import Element from 'element-ui'
-import './styles/element-variables.scss' // 自定义主题
+import '@/assets/styles/element-variables.scss' // 自定义主题
 
-import '@/styles/index.scss' // global css
+import '@/assets/styles/index.scss' // global css
 
 import App from './App'
 import store from './store'

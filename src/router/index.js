@@ -65,10 +65,11 @@ export const loadMenus = (next, to) => {
       'path': '/cms',
       'redirect': 'noRedirect',
       'children': [
-        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章管理' }, 'name': 'Article', 'path': 'articleList' },
-        { 'component': 'comment/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
-        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章分类' }, 'name': 'Category', 'path': 'categoryList' },
-        { 'component': 'cms/list', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '广告管理' }, 'name': 'Ad', 'path': 'AdList' }
+        { 'component': 'cms/article', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章管理' }, 'name': 'ArticleList', 'path': 'articleList' },
+        { 'component': 'cms/article/detail', 'hidden': true, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章详情' }, 'name': 'ArticleDetail', 'path': 'articleDetail' },
+        { 'component': 'cms/comment', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
+        { 'component': 'cms/category', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章分类' }, 'name': 'Category', 'path': 'categoryList' },
+        { 'component': 'cms/ad', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '广告管理' }, 'name': 'Ad', 'path': 'AdList' }
       ]
     },
     {
@@ -108,8 +109,7 @@ export const loadMenus = (next, to) => {
     const rdata = JSON.parse(JSON.stringify(res))
     const sidebarRoutes = filterAsyncRoutes(sdata)
     const rewriteRoutes = filterAsyncRoutes(rdata, false, true)
-    // const sidebarRoutes = []
-    // const rewriteRoutes = []
+
     rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
 
     store.dispatch('GenerateRoutes', rewriteRoutes).then(() => { // 存储路由
