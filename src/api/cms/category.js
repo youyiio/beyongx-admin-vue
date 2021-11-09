@@ -12,3 +12,12 @@ export function categoryList(data) {
   })
 }
 
+// 查询分类列表
+export function setStatus(data) {
+  return request({
+    url: '/category/setStatus',
+    method: 'post',
+    data
+  })
+}
+

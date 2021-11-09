@@ -1,27 +1,24 @@
 <template>
   <div class="app-container">
     <div class="head-container">
-      <div>
-        <el-input v-model="listQuery.filters.keyword" clearable size="small" placeholder="输入关键字搜索" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
-        <el-select v-model="listQuery.filters.status" clearable size="small" placeholder="状态" style="width: 90px" class="filter-item" @change="handleFilter">
+      <div v-if="searchToggle">
+        <el-input v-model="listQuery.filters.keyword" clearable size="small" placeholder="输入关键字搜索" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter()" />
+        <el-select v-model="listQuery.filters.status" clearable size="small" placeholder="状态" style="width: 90px" class="filter-item" @change="handleFilter()">
           <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
         </el-select>
-        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="handleFilter"> 搜索 </el-button>
+        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="handleFilter()"> 搜索 </el-button>
+        <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
       </div>
       <div class="crud-opts">
         <span class="crud-opts-left">
-          <!--左侧插槽-->
-          <slot name="left" />
-          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus"> 新增 </el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit"> 修改 </el-button>
-          <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini"> 删除 </el-button>
-          <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload"> 导出 </el-button>
-          <!--右侧-->
-          <slot name="right" />
+          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" @click="handleUpdate()"> 修改 </el-button>
+          <el-button class="filter-item" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete()"> 删除 </el-button>
+          <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload()"> 导出 </el-button>
         </span>
         <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" />
-          <el-button size="mini" icon="el-icon-refresh" />
+          <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
+          <el-button size="mini" icon="el-icon-refresh" @click="handleRefresh()" />
           <el-popover placement="bottom-end" width="150" trigger="click">
             <el-button slot="reference" size="mini" icon="el-icon-s-grid">
               <i class="fa fa-caret-down" aria-hidden="true" />
@@ -74,7 +71,7 @@
 <script>
 import { articleList, publishArticle, deleteArticle } from '@/api/cms/article'
 import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import Pagination from '@/components/Pagination'
 
 export default {
   name: 'ArticleList',
@@ -95,6 +92,7 @@ export default {
   },
   data() {
     return {
+      searchToggle: true,
       tableKey: 0,
       tableSelections: [],
       list: null,
@@ -116,6 +114,10 @@ export default {
     this.getList()
   },
   methods: {
+    // 隐藏工具栏
+    toggleSearch() {
+      this.searchToggle = !this.searchToggle
+    },
     // 获取文章列表
     getList() {
       this.listLoading = true
@@ -130,7 +132,7 @@ export default {
       this.listQuery.page = 1
       this.getList()
     },
-
+    // 全选
     handleSelectionChange(val) {
       this.tableSelections = val
     },
@@ -162,6 +164,12 @@ export default {
       this.$router.push({
         path: '/cms/articleDetail',
         query: { articleId: row.id }
+      })
+    },
+    // 新增文章
+    handleCreate() {
+      this.$router.push({
+        path: '/cms/articleCreate'
       })
     },
     // 编辑文章

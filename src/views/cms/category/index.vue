@@ -1,101 +1,97 @@
 <template>
   <div class="app-container">
     <div class="head-container">
-      <div>
-        <el-input v-model="listQuery.filters.keyword" clearable size="small" placeholder="输入关键字搜索" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter" />
-        <el-select v-model="listQuery.filters.status" clearable size="small" placeholder="状态" style="width: 90px" class="filter-item" @change="handleFilter">
-          <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
-        </el-select>
-        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="handleFilter"> 搜索 </el-button>
-      </div>
       <div class="crud-opts">
         <span class="crud-opts-left">
-          <!--左侧插槽-->
-          <slot name="left" />
           <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus"> 新增 </el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit"> 修改 </el-button>
           <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini"> 删除 </el-button>
-          <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload"> 导出 </el-button>
-          <!--右侧-->
-          <slot name="right" />
         </span>
-        <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" />
-          <el-button size="mini" icon="el-icon-refresh" />
-          <el-popover placement="bottom-end" width="150" trigger="click">
-            <el-button slot="reference" size="mini" icon="el-icon-s-grid">
-              <i class="fa fa-caret-down" aria-hidden="true" />
-            </el-button>
-            <el-checkbox> 全选 </el-checkbox>
-            <el-checkbox />
-          </el-popover>
-        </el-button-group>
       </div>
     </div>
-
-    <el-table ref="categoryTable" :key="tableKey" v-loading="listLoading" :data="list" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" :row-key="id" lazy @selection-change="handleSelectionChange">
+    <!-- 表格渲染 -->
+    <el-table ref="categoryTable" :key="tableKey" v-loading="listLoading" :data="list" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" row-key="id" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="30" />
-      <el-table-column label="ID" prop="id" align="center" width="80" />
+      <el-table-column type="" label="ID" prop="id" align="center" width="80" />
       <el-table-column label="分类名称" prop="title" />
       <el-table-column label="英文名称" prop="name" />
       <el-table-column label="备注" prop="remark" />
-      <el-table-column label="状态" class-name="status-col" width="80">
-        <template slot-scope="{ row }">
-          <span> {{ row.status | statusFilter }} </span>
+      <el-table-column label="状态" align="center" prop="status">
+        <template slot-scope="scope">
+          <el-switch v-model="scope.row.enabled" active-color="#409EFF" inactive-color="#F56C6C" @change="changeEnabled(scope.row)" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="230">
-        <template slot-scope="{ row, $index }">
+        <template slot-scope="{ row }">
           <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
           <el-button size="mini" type="success" @click="handlePublish(row)"> 发布 </el-button>
-          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row, $index)" />
+          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row)" />
         </template>
       </el-table-column>
     </el-table>
+    <!--表单组件-->
+    <!-- <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="dialogVisible" width="500px">
+      <el-form ref="form" inline :model="form" :rules="rules" size="small" label-width="80px">
+        <el-form-item label="分类名称" prop="title">
+          <el-input v-model="form.title" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item label="分类排序" prop="sort">
+          <el-input-number v-model.number="form.sort" :min="0" :max="999" controls-position="right" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item label="顶级分类">
+          <el-radio-group v-model="form.level" style="width: 140px">
+            <el-radio label="1">是</el-radio>
+            <el-radio label="0">否</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="状态" prop="enabled">
+          <el-radio v-for="item in {[1:'上线']}" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
+        </el-form-item>
+        <el-form-item v-if="form.level === '0'" style="margin-bottom: 0;" label="上级分类" prop="pid">
+          <treeselect
+            v-model="form.pid"
+            :load-options="loadDepts"
+            :options="depts"
+            style="width: 370px;"
+            placeholder="选择上级类目"
+          />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="text">取消</el-button>
+        <el-button type="primary">确认</el-button>
+      </div>
+    </el-dialog> -->
 
     <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getList" />
   </div>
 </template>
 
 <script>
-import { categoryList } from '@/api/cms/category'
-import { parseTime } from '@/utils'
+import { categoryList, setStatus } from '@/api/cms/category'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import { filterTree } from '@/utils'
 
 export default {
   name: 'CategoryList',
   components: { Pagination },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        '-1': '已删除',
-        0: '草稿',
-        1: '申请发布',
-        2: '初审拒绝',
-        3: '初审通过',
-        4: '终审拒绝',
-        5: '已发布'
-      }
-      return statusMap[status]
-    }
-  },
   data() {
     return {
       tableKey: 0,
       tableSelections: [],
-      list: null,
+      list: [],
       total: 0,
       listLoading: true,
       listQuery: {
         page: 1,
         size: 20,
         filters: {
-          keyword: undefined,
-          status: undefined
+          struct: 'tree',
+          pid: 0,
+          depth: 5
         }
       },
-      statusOptions: [-1, 0, 1, 2, 3, 4, 5],
-      downloadLoading: false
+      dialogVisible: true
     }
   },
   created() {
@@ -106,15 +102,31 @@ export default {
     getList() {
       this.listLoading = true
       categoryList(this.listQuery).then((response) => {
-        this.list = response.data.records
+        const listData = response.data.records
+        listData.forEach(element => {
+          element.enabled = true
+          if (element.status !== 1) {
+            element.enabled = false
+          }
+        })
+        this.list = filterTree(listData, false)
         this.total = response.data.total
         this.listLoading = false
       })
     },
-    // 根据条件获取文章列表
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getList()
+
+    // 更改状态
+    changeEnabled(row) {
+      const setParams = {
+        id: row.id,
+        status: row.status === 1 ? 0 : 1
+      }
+      setStatus(setParams).then((response) => {
+        this.$message({
+          message: setParams['status'] === 1 ? '上线' : '下线' + '成功',
+          type: 'success'
+        })
+      })
     },
 
     handleSelectionChange(val) {
@@ -151,40 +163,8 @@ export default {
       })
     },
     // 编辑文章
-    handleUpdate(row) {},
+    handleUpdate(row) {}
 
-    // 导出文章
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then((excel) => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = [
-          'timestamp',
-          'title',
-          'type',
-          'importance',
-          'status'
-        ]
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
-    },
-    formatJson(filterVal) {
-      return this.list.map((v) =>
-        filterVal.map((j) => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
-          } else {
-            return v[j]
-          }
-        })
-      )
-    }
   }
 }
 </script>
@@ -195,11 +175,7 @@ export default {
 	display: -webkit-flex;
 	display: flex;
 	align-items: center;
-}
-.crud-opts .crud-opts-right {
-	margin-left: auto;
-}
-.crud-opts .crud-opts-right span {
-	float: left;
+  margin-left: auto;
+  float: left;
 }
 </style>

@@ -355,3 +355,19 @@ export function removeClass(ele, cls) {
     ele.className = ele.className.replace(reg, ' ')
   }
 }
+
+export function filterTree(arr, lazy) {
+  if (Array.isArray(arr)) {
+    arr.forEach(function(item, index, arr) {
+      for (const key in item) {
+        if (key === 'hasChildren' && !lazy) {
+          delete item[key]
+        }
+        if (key === 'children' && lazy) {
+          delete item[key]
+        }
+      }
+    })
+  }
+  return arr
+}
