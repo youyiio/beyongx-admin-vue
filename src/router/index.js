@@ -67,7 +67,8 @@ export const loadMenus = (next, to) => {
       'children': [
         { 'component': 'cms/article', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章管理' }, 'name': 'ArticleList', 'path': 'articleList' },
         { 'component': 'cms/article/detail', 'hidden': true, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章详情' }, 'name': 'ArticleDetail', 'path': 'articleDetail' },
-        { 'component': 'cms/article/add', 'hidden': true, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '新增文章' }, 'name': 'ArticleCreate', 'path': 'articleCreate' },
+        { 'component': 'cms/article/operation', 'hidden': true, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '新增文章' }, 'name': 'ArticleCreate', 'path': 'articleCreate' },
+        { 'component': 'cms/article/operation', 'hidden': true, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '编辑文章' }, 'name': 'ArticleUpdate', 'path': 'articleUpdate', 'props': true },
         { 'component': 'cms/comment', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '评论管理' }, 'name': 'Comment', 'path': 'commentList' },
         { 'component': 'cms/category', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '文章分类' }, 'name': 'Category', 'path': 'categoryList' },
         { 'component': 'cms/ad', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '广告管理' }, 'name': 'Ad', 'path': 'AdList' }

@@ -1,6 +1,6 @@
 <template>
   <el-container :data="record">
-    <el-header>{{ record.title }}</el-header>
+    <el-header prop="title">{{ record.title }}</el-header>
     <el-divider content-position="left">
       <span>作者：{{ record.author }}</span>
       <el-divider direction="vertical" />
@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/cms/article'
+import { articleDetail } from '@/api/cms/article'
 
 export default {
   name: 'ArticleDetail',
@@ -32,8 +32,8 @@ export default {
   methods: {
     getArticle() {
       const articleId = this.$route.query.articleId
-      getArticle(articleId).then((response) => {
-        this.record = response.data
+      articleDetail(articleId).then((res) => {
+        this.record = res.data
       })
     }
   }

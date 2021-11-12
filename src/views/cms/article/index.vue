@@ -2,23 +2,36 @@
   <div class="app-container">
     <div class="head-container">
       <div v-if="searchToggle">
-        <el-input v-model="listQuery.filters.keyword" clearable size="small" placeholder="输入关键字搜索" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter()" />
-        <el-select v-model="listQuery.filters.status" clearable size="small" placeholder="状态" style="width: 90px" class="filter-item" @change="handleFilter()">
-          <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
-        </el-select>
-        <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="handleFilter()"> 搜索 </el-button>
-        <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
+        <el-form ref="searchForm" :model="listQuery.filters" :inline="true">
+          <el-form-item prop="keyword">
+            <el-input v-model="listQuery.filters.keyword" clearable size="mini" placeholder="输入关键字搜索" style="width: 200px" class="filter-item" @keyup.enter.native="handleFilter()" />
+          </el-form-item>
+          <el-form-item prop="status">
+            <el-select v-model="listQuery.filters.status" clearable size="mini" placeholder="状态" style="width: 90px" class="filter-item">
+              <el-option v-for="status in statusOptions" :key="status" :label="status | statusFilter" :value="status" />
+            </el-select>
+          </el-form-item>
+          <el-form-item prop="categoryId">
+            <treeselect v-model="listQuery.filters.categoryId" :options="categoryOptions" :normalizer="normalizer" :searchable="false" style="width: 150px;" placeholder="选择所属分类" class="filter-item" size="mini" />
+          </el-form-item>
+          <el-form-item prop="dateTime">
+            <el-date-picker v-model="listQuery.filters.dateTime" clearable size="mini" type="daterange" align="right" start-placeholder="开始日期" end-placeholder="结束日期" :default-time="['00:00:00', '23:59:59']" value-format="yyyy-MM-dd HH:mm:ss" class="date-item" />
+          </el-form-item>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-search" @click="handleFilter()"> 搜索 </el-button>
+          <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
+        </el-form>
       </div>
       <div class="crud-opts">
         <span class="crud-opts-left">
           <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" @click="handleUpdate()"> 修改 </el-button>
-          <el-button class="filter-item" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete()"> 删除 </el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="articleSelections.length !== 1" @click="handleUpdate(articleSelections[0])"> 修改 </el-button>
+          <el-button class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="publishable" @click="handlePublish(articleSelections)"> 发布 </el-button>
+          <el-button class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="deleteable" @click="handleDelete(articleSelections, 0)"> 删除 </el-button>
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload()"> 导出 </el-button>
         </span>
         <el-button-group class="crud-opts-right">
           <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="handleRefresh()" />
+          <el-button size="mini" icon="el-icon-refresh" @click="getList()" />
           <el-popover placement="bottom-end" width="150" trigger="click">
             <el-button slot="reference" size="mini" icon="el-icon-s-grid">
               <i class="fa fa-caret-down" aria-hidden="true" />
@@ -31,11 +44,18 @@
     </div>
 
     <el-table ref="articleTable" :key="tableKey" v-loading="listLoading" :data="list" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="30" />
+      <el-table-column type="selection" width="50" />
       <el-table-column label="ID" prop="id" align="center" width="80" />
       <el-table-column label="标题" :show-overflow-tooltip="true">
         <template slot-scope="{ row }">
           <span class="link-type" @click="handleDetail(row)">{{ row.title }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="所属分类" width="160">
+        <template slot-scope="{ row }">
+          <span v-for="(category, index) in row.categorys" :key="index">
+            <el-tag v-if="category" type="info" size="mini" effect="plain">{{ category.title }}</el-tag>
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="作者" prop="author" width="120" />
@@ -47,19 +67,19 @@
       <el-table-column label="浏览量" prop="readCount" width="80" align="center" />
       <el-table-column label="发布日期" width="150px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ row.postTime | parseTime("{y}-{m}-{d} {h}:{i}") }}</span>
+          <span>{{ row.postTime }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建日期" width="150px" align="center">
         <template slot-scope="{ row }">
-          <span>{{ row.createTime | parseTime("{y}-{m}-{d} {h}:{i}") }}</span>
+          <span>{{ row.createTime }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row, $index }">
           <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-button size="mini" type="success" @click="handlePublish(row)"> 发布 </el-button>
-          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row, $index)" />
+          <el-button size="mini" type="success" icon="el-icon-thumb" :disabled="row.status === statusOptions[6]" @click="handlePublish(row)" />
+          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0]" @click="handleDelete(row, $index)" />
         </template>
       </el-table-column>
     </el-table>
@@ -69,13 +89,16 @@
 </template>
 
 <script>
-import { articleList, publishArticle, deleteArticle } from '@/api/cms/article'
+import { articleList, articleDelete, articlePublish } from '@/api/cms/article'
+import { categoryList } from '@/api/cms/category'
 import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination'
+import Treeselect from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
   name: 'ArticleList',
-  components: { Pagination },
+  components: { Pagination, Treeselect },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -94,7 +117,17 @@ export default {
     return {
       searchToggle: true,
       tableKey: 0,
-      tableSelections: [],
+      publishable: true,
+      deleteable: true,
+      articleSelections: [],
+      categoryOptions: [],
+      normalizer(node) {
+        return {
+          id: node.id,
+          label: node.title,
+          children: node.children
+        }
+      },
       list: null,
       total: 0,
       listLoading: true,
@@ -103,7 +136,11 @@ export default {
         size: 20,
         filters: {
           keyword: undefined,
-          status: undefined
+          status: undefined,
+          categoryId: undefined,
+          dateTime: '',
+          startTime: '',
+          endTime: ''
         }
       },
       statusOptions: [-1, 0, 1, 2, 3, 4, 5],
@@ -112,15 +149,47 @@ export default {
   },
   created() {
     this.getList()
+    this.getCategoryList()
   },
   methods: {
     // 隐藏工具栏
     toggleSearch() {
       this.searchToggle = !this.searchToggle
     },
+
+    // 重置搜索
+    handleReset() {
+      this.$refs.searchForm.resetFields()
+      this.getList()
+    },
+
+    // 获取分类列表
+    getCategoryList() {
+      const categoryParams = {
+        page: 1,
+        size: 50,
+        filters: {
+          struct: 'tree',
+          pid: 0,
+          depth: 5
+        }
+      }
+      categoryList(categoryParams).then((res) => {
+        this.categoryOptions = res.data.records
+      })
+    },
+
     // 获取文章列表
     getList() {
       this.listLoading = true
+      const queryDateTime = this.listQuery.filters.dateTime
+      if (queryDateTime.length === 2 && Array.isArray(queryDateTime)) {
+        this.listQuery.filters.startTime = queryDateTime[0]
+        this.listQuery.filters.endTime = queryDateTime[1]
+      } else {
+        this.listQuery.filters.startTime = ''
+        this.listQuery.filters.endTime = ''
+      }
       articleList(this.listQuery).then((response) => {
         this.list = response.data.records
         this.total = response.data.total
@@ -134,29 +203,65 @@ export default {
     },
     // 全选
     handleSelectionChange(val) {
-      this.tableSelections = val
+      this.deleteable = false
+      this.publishable = false
+      val.forEach(element => {
+        if (element.status === this.statusOptions[0]) {
+          this.deleteable = true
+        }
+        if (element.status === this.statusOptions[6]) {
+          this.publishable = true
+        }
+      })
+      this.articleSelections = val
     },
 
     // 发布文章
     handlePublish(row) {
-      const publishParams = { id: row.id }
-      publishArticle(publishParams).then((response) => {
+      const publishParams = {}
+      const articleIds = []
+      if (Array.isArray(row)) {
+        for (const item of row) {
+          articleIds.push(item.id)
+        }
+        publishParams.ids = articleIds
+      } else {
+        publishParams.id = row.id
+      }
+      articlePublish(publishParams).then((res) => {
         this.$message({
           message: '发布成功',
           type: 'success'
         })
-        row.status = this.statusOptions[6]
+        if (Array.isArray(row)) {
+          this.getList()
+        } else {
+          row.status = this.statusOptions[6]
+        }
       })
     },
     // 删除文章
     handleDelete(row, index) {
-      const deleteParams = { id: row.id }
-      deleteArticle(deleteParams).then((response) => {
+      const deleteParams = {}
+      const articleIds = []
+      if (Array.isArray(row)) {
+        for (const item of row) {
+          articleIds.push(item.id)
+        }
+        deleteParams.ids = articleIds
+      } else {
+        deleteParams.id = row.id
+      }
+      articleDelete(deleteParams).then((response) => {
         this.$message({
           message: '删除成功',
           type: 'success'
         })
-        this.list.splice(index, 1)
+        if (Array.isArray(row)) {
+          this.getList()
+        } else {
+          this.list.splice(index, 1)
+        }
       })
     },
     // 文章详情
@@ -173,7 +278,17 @@ export default {
       })
     },
     // 编辑文章
-    handleUpdate(row) {},
+    handleUpdate(row) {
+      this.$router.push({
+        name: 'ArticleUpdate',
+        // path: '/cms/articleUpdate',
+        params: {
+          articleId: row.id,
+          operStatus: 'update'
+          // formData: row
+        }
+      })
+    },
 
     // 导出文章
     handleDownload() {
@@ -213,6 +328,7 @@ export default {
 
 <style>
 .crud-opts {
+  width: 100%;
 	padding: 4px 0;
 	display: -webkit-flex;
 	display: flex;
