@@ -3,7 +3,7 @@ variables:
   #server_ip: 192.168.1.52
   #ssh_port: 22
   bundle_name: bundle.tar.gz
-  upload_path: /root/cicd/beyongx
+  upload_path: /root/cicd/beyongx-admin-vue
   deploy_path: /data/web/demo.beyongx.com/beyongx-admin-vue
 
 # 定义执行的各个阶段及顺序
