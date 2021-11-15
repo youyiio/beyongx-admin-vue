@@ -13,7 +13,7 @@ export function articleList(data) {
 }
 
 // 获取文章详情
-export function getArticle(id) {
+export function articleDetail(id) {
   return request({
     url: '/article/' + id,
     method: 'get'
@@ -21,23 +21,25 @@ export function getArticle(id) {
 }
 
 // 创建新文章
-export function createArticle() {
+export function articleCreate(data) {
   return request({
     url: '/article/create',
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 
 // 编辑文章
-export function editArticle() {
+export function articleUpdate(id, data) {
   return request({
-    url: '/article/edit',
-    method: 'post'
+    url: '/article/' + id,
+    method: 'post',
+    data
   })
 }
 
 // 发布文章
-export function publishArticle(data) {
+export function articlePublish(data) {
   return request({
     url: '/article/publish',
     method: 'post',
@@ -46,7 +48,7 @@ export function publishArticle(data) {
 }
 
 // 审核文章
-export function auditArticle() {
+export function articleAudit() {
   return request({
     url: '/article/audit',
     method: 'post'
@@ -54,7 +56,7 @@ export function auditArticle() {
 }
 
 // 删除文章
-export function deleteArticle(data) {
+export function articleDelete(data) {
   return request({
     url: '/article/delete',
     method: 'delete',

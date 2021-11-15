@@ -356,16 +356,16 @@ export function removeClass(ele, cls) {
   }
 }
 
-export function filterTree(arr, lazy) {
+export function filterTree(arr, lazy = false) {
   if (Array.isArray(arr)) {
     arr.forEach(function(item, index, arr) {
-      for (const key in item) {
-        if (key === 'hasChildren' && !lazy) {
-          delete item[key]
-        }
-        if (key === 'children' && lazy) {
-          delete item[key]
-        }
+      if (!lazy) {
+        item.hasChildren = null
+      } else {
+        item.children = null
+      }
+      if (item.children) {
+        filterTree(item.children, lazy)
       }
     })
   }
