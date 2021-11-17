@@ -13,7 +13,7 @@ import App from './App'
 import store from './store'
 import router from './router/routers'
 
-import './icons' // icon
+import './assets/icons' // icon
 import './router/index'
 // import './permission' // permission control
 import './utils/error-log' // error log
@@ -21,7 +21,7 @@ import './utils/error-log' // error log
 import * as filters from './filters' // global filters
 
 Vue.use(Element, {
-  size: Cookies.get('size') || 'medium' // set element-ui default size
+  size: Cookies.get('size') || 'small' // set element-ui default size
 })
 
 // register global utility filters

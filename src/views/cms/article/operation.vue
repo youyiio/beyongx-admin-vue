@@ -29,7 +29,7 @@
                 <el-input v-model="formData.keywords" style="width: 250px;" />
               </el-form-item>
               <el-form-item label="摘要" prop="description">
-                <el-input v-model="formData.description" type="textarea" style="width: 250px;" />
+                <el-input v-model="formData.description" type="textarea" rows="5" style="width: 250px;" />
               </el-form-item>
               <el-form-item label="文章内容" prop="content" style="margin-bottom: 30px;">
                 <Tinymce ref="editor" v-model="formData.content" :width="800" :height="400" />
@@ -109,8 +109,9 @@ export default {
     }
   },
   created() {
-    this.getArticle()
-    console.log(this.formData)
+    if (this.operStatus === 'update') {
+      this.getArticleDetail()
+    }
     this.getCategoryList()
   },
   methods: {
@@ -131,11 +132,14 @@ export default {
     },
 
     // 获取编辑文章
-    getArticle() {
+    getArticleDetail() {
       const articleId = this.articleId
       articleDetail(articleId).then((res) => {
         const article = res.data
         this.formData.title = article.title
+        article.categorys.forEach(element => {
+          this.formData.categoryIds.push(element.id)
+        })
         this.formData.keywords = article.keywords
         this.formData.description = article.description
         this.formData.content = article.content
@@ -144,7 +148,6 @@ export default {
 
     // 表单提交
     handleSubmit() {
-      console.log(this.formData)
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           if (this.operStatus === 'create') {
@@ -172,11 +175,8 @@ export default {
           }
         }
       })
-    },
-
-    test() {
-      console.log(this.formData.categoryIds)
     }
+
   }
 }
 </script>

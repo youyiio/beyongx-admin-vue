@@ -62,7 +62,7 @@
       </div>
     </el-dialog>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getCategoryList()" />
   </div>
 </template>
 
@@ -94,7 +94,7 @@ export default {
           depth: 5
         }
       },
-      dialogStatus: '',
+      dialogStatus: 'create',
       titleMap: {
         'create': '新增',
         'update': '编辑'
@@ -124,7 +124,7 @@ export default {
     }
   },
   created() {
-    this.getList()
+    this.getCategoryList()
   },
   methods: {
     // 列表数据增加状态属性
@@ -141,7 +141,7 @@ export default {
       return arr
     },
     // 获取分类列表
-    getList() {
+    getCategoryList() {
       this.listLoading = true
       categoryList(this.listQuery).then((res) => {
         const listData = this.setStatusEnabled(res.data.records)
@@ -168,7 +168,7 @@ export default {
 
     // 新增分类
     handleCreate() {
-      this.formData = Object.assign({}, defaultFormData)
+      this.formData = Object.assign(JSON.parse(JSON.stringify(defaultFormData)))
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       this.categoryOptions = this.list
@@ -179,7 +179,7 @@ export default {
 
     // 编辑分类
     handleUpdate(row) {
-      this.formData = Object.assign({}, defaultFormData)
+      this.formData = Object.assign(JSON.parse(JSON.stringify(defaultFormData)))
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.categoryOptions = this.list
@@ -217,7 +217,7 @@ export default {
                 message: '新增分类成功！',
                 type: 'success'
               })
-              this.getList()
+              this.getCategoryList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -228,7 +228,7 @@ export default {
                 message: '编辑分类成功！',
                 type: 'success'
               })
-              this.getList()
+              this.getCategoryList()
             })
           }
         }
@@ -242,16 +242,12 @@ export default {
           message: '删除成功！',
           type: 'success'
         })
-        this.getList()
+        this.getCategoryList()
       })
     },
 
     handleSelectionChange(val) {
       this.categorySelections = val
-    },
-
-    test(val) {
-      console.log(val)
     }
 
   }

@@ -31,7 +31,7 @@
         </span>
         <el-button-group class="crud-opts-right">
           <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="getList()" />
+          <el-button size="mini" icon="el-icon-refresh" @click="getArticleList()" />
           <el-popover placement="bottom-end" width="150" trigger="click">
             <el-button slot="reference" size="mini" icon="el-icon-s-grid">
               <i class="fa fa-caret-down" aria-hidden="true" />
@@ -84,7 +84,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getList" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getArticleList()" />
   </div>
 </template>
 
@@ -148,7 +148,7 @@ export default {
     }
   },
   created() {
-    this.getList()
+    this.getArticleList()
     this.getCategoryList()
   },
   methods: {
@@ -160,7 +160,7 @@ export default {
     // 重置搜索
     handleReset() {
       this.$refs.searchForm.resetFields()
-      this.getList()
+      this.getArticleList()
     },
 
     // 获取分类列表
@@ -180,7 +180,7 @@ export default {
     },
 
     // 获取文章列表
-    getList() {
+    getArticleList() {
       this.listLoading = true
       const queryDateTime = this.listQuery.filters.dateTime
       if (queryDateTime.length === 2 && Array.isArray(queryDateTime)) {
@@ -199,7 +199,7 @@ export default {
     // 根据条件获取文章列表
     handleFilter() {
       this.listQuery.page = 1
-      this.getList()
+      this.getArticleList()
     },
     // 全选
     handleSelectionChange(val) {
@@ -234,7 +234,7 @@ export default {
           type: 'success'
         })
         if (Array.isArray(row)) {
-          this.getList()
+          this.getArticleList()
         } else {
           row.status = this.statusOptions[6]
         }
@@ -258,7 +258,7 @@ export default {
           type: 'success'
         })
         if (Array.isArray(row)) {
-          this.getList()
+          this.getArticleList()
         } else {
           this.list.splice(index, 1)
         }

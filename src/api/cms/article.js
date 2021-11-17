@@ -1,5 +1,5 @@
 /**
- * 有关内容管理相关接口
+ * 有关文章管理相关接口
  */
 import request from '@/utils/request'
 

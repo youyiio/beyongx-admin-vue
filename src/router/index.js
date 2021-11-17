@@ -61,7 +61,7 @@ export const loadMenus = (next, to) => {
       'component': 'Layout',
       'hidden': false,
       'meta': { 'icon': 'el-icon-news', 'noCache': true, 'title': '内容管理' },
-      'name': '内容管理',
+      'name': 'Cms',
       'path': '/cms',
       'redirect': 'noRedirect',
       'children': [
@@ -100,7 +100,7 @@ export const loadMenus = (next, to) => {
       'children': [
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '用户管理' }, 'name': 'User', 'path': 'user' },
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': false, 'title': '角色管理' }, 'name': 'Roles', 'path': 'roles' },
-        { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '菜单管理' }, 'name': 'Menus', 'path': 'menus' },
+        { 'component': 'system/menu', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '菜单管理' }, 'name': 'Menu', 'path': 'menuList' },
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '部门管理' }, 'name': 'Department', 'path': 'department' },
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '岗位管理' }, 'name': 'Gangwei', 'path': 'gangwei' },
         { 'component': 'empty', 'hidden': false, 'meta': { 'icon': 'el-icon-reading', 'noCache': true, 'title': '字典管理' }, 'name': 'Dict', 'path': 'dict' }
