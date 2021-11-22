@@ -371,3 +371,30 @@ export function filterTree(arr, lazy = false) {
   }
   return arr
 }
+
+export function buildMenus(arr) {
+  const showMenu = []
+  arr.forEach(item => {
+    if (item.pid === 0) {
+      showMenu.push({
+        alwaysShow: true,
+        component: item.component ? item.component : 'Layout',
+        hidden: item.isMenu !== 1,
+        meta: { icon: item.icon, noCache: true, title: item.title },
+        name: item.name,
+        path: item.type === 0 ? item.path : '/' + item.path,
+        redirect: 'noRedirect',
+        children: item.hasChildren && Array.isArray(item.children) ? buildMenus(item.children) : null
+      })
+    } else {
+      showMenu.push({
+        component: item.component ? item.component : 'Layout',
+        hidden: item.is_menu !== 1,
+        meta: { icon: item.icon, noCache: true, title: item.title },
+        name: item.name,
+        path: item.path
+      })
+    }
+  })
+  return showMenu
+}

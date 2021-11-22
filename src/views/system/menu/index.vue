@@ -11,7 +11,19 @@
       </div>
     </div>
     <!-- 表格渲染 -->
-    <el-table ref="menuTable" :key="tableKey" v-loading="listLoading" :data="list" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" lazy :load="getChildrenMenu" row-key="id" @selection-change="handleSelectionChange">
+    <el-table
+      ref="menuTable"
+      :key="tableKey"
+      v-loading="listLoading"
+      :data="list"
+      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      lazy
+      :load="getChildrenMenu"
+      row-key="id"
+      @selection-change="handleSelectionChange"
+      @select="handleSelect"
+      @select-all="handleSelectAll"
+    >
       <el-table-column type="selection" width="50" />
       <el-table-column label="菜单标题" width="150px" prop="title" />
       <el-table-column label="图标" align="center" width="60px" prop="icon">
@@ -34,7 +46,7 @@
       </el-table-column>
       <el-table-column label="目录" align="center" width="75px">
         <template slot-scope="{ row }">
-          <span v-if="row.is_menu === 1"> 是 </span>
+          <span v-if="row.isMenu === 1"> 是 </span>
           <span v-else> 否 </span>
         </template>
       </el-table-column>
@@ -57,7 +69,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单可见" prop="hidden">
-          <el-radio-group v-model="formData.is_menu" size="mini">
+          <el-radio-group v-model="formData.isMenu" size="mini">
             <el-radio-button label="1">是</el-radio-button>
             <el-radio-button label="0">否</el-radio-button>
           </el-radio-group>
@@ -125,9 +137,10 @@ const defaultListQuery = {
 }
 
 const defaultFormData = {
+  id: undefined,
   type: 0,
   icon: '',
-  is_menu: 0,
+  isMenu: 0,
   title: '',
   permission: '',
   path: '',
@@ -147,14 +160,14 @@ export default {
       list: [],
       total: 0,
       listLoading: true,
-      listQuery: {},
+      listQuery: Object.assign(JSON.parse(JSON.stringify(defaultListQuery))),
       dialogStatus: 'create',
       titleMap: {
         'create': '新增',
         'update': '编辑'
       },
       dialogFormVisible: false,
-      formData: {},
+      formData: Object.assign(JSON.parse(JSON.stringify(defaultFormData))),
       rules: {
         title: [{ required: true, message: '请输入标题名称', trigger: 'blur' }],
         path: [{ required: true, message: '请输入路由地址', trigger: 'blur' }],
@@ -172,13 +185,11 @@ export default {
     }
   },
   created() {
-    this.formData = Object.assign(JSON.parse(JSON.stringify(defaultFormData)))
     this.getMenuList()
   },
   methods: {
     // 获取菜单列表
     getMenuList() {
-      this.listQuery = Object.assign(JSON.parse(JSON.stringify(defaultListQuery)), this.listQuery)
       this.listLoading = true
       menuList(this.listQuery).then((res) => {
         this.list = res.data.records
@@ -237,7 +248,30 @@ export default {
         this.formData[key] = row[key]
       }
       this.formData = Object.assign(this.formData, { id: row.id })
+      this.getMenuSelected(row.pid)
     },
+    // 获取编辑类目中已选类目
+    getMenuSelected(pid) {
+      const selectQuery = Object.assign(JSON.parse(JSON.stringify(defaultListQuery)))
+      selectQuery.size = 50
+      selectQuery.filters.depth = 5
+      menuList(selectQuery).then((res) => {
+        const menuData = res.data.records
+        this.categoryOptions[0].children = menuData
+        // this.filterMenus(this.categoryOptions, pid)
+      })
+    },
+    // filterMenus(menus, pid) {
+    //   console.log(menus)
+    //   console.log(pid)
+    //   const menuIndex = menus.findIndex(item => item.id === pid)
+    //   if (menuIndex !== -1) {
+    //     menuIndex.forEach(element => {
+    //       element.children = null
+    //     })
+    //   }
+    //   console.log(menuIndex)
+    // },
     // 表格提交
     handleConfirm() {
       this.$refs['dataForm'].validate((valid) => {
@@ -276,6 +310,11 @@ export default {
       })
     },
     // 全选框操作
+    handleSelect(selection, row) {
+    },
+    handleSelectAll() {
+
+    },
     handleSelectionChange(val) {
       this.menuSelections = val
     },
