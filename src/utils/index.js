@@ -389,7 +389,7 @@ export function buildMenus(arr) {
     } else {
       showMenu.push({
         component: item.component ? item.component : 'Layout',
-        hidden: item.is_menu !== 1,
+        hidden: item.isMenu !== 1,
         meta: { icon: item.icon, noCache: true, title: item.title },
         name: item.name,
         path: item.path
