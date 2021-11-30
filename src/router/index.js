@@ -5,7 +5,7 @@ import NProgress from 'nprogress' // 引入进度条插件
 import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
 import { filterAsyncRoutes } from '@/store/modules/permission'
-import { menuList } from '@/api/system/menu'
+import { menuRoleList } from '@/api/system/menu'
 import { buildMenus } from '@/utils'
 
 NProgress.configure({ showSpinner: false })
@@ -56,17 +56,8 @@ router.afterEach(() => {
 })
 
 export const loadMenus = (next, to) => {
-  const menuQuery = {
-    page: 1,
-    size: 50,
-    filters: {
-      struct: 'tree',
-      pid: 0,
-      depth: 3
-    }
-  }
-  menuList(menuQuery).then(res => {
-    const menus = buildMenus(res.data.records)
+  menuRoleList().then(res => {
+    const menus = buildMenus(res.data)
     const sdata = JSON.parse(JSON.stringify(menus))
     const rdata = JSON.parse(JSON.stringify(menus))
     const sidebarRoutes = filterAsyncRoutes(sdata)
@@ -75,7 +66,7 @@ export const loadMenus = (next, to) => {
     rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
 
     store.dispatch('GenerateRoutes', rewriteRoutes).then(() => { // 存储路由
-      router.addRoutes(rewriteRoutes) // 动态添加可访问路由表
+      router.addRoutes(sidebarRoutes) // 动态添加可访问路由表
       next({ ...to, replace: true })
     })
     store.dispatch('SetSidebarRoutes', sidebarRoutes)

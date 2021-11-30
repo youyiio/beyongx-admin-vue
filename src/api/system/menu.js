@@ -37,3 +37,11 @@ export function menuDelete(id) {
     method: 'delete'
   })
 }
+
+// 查询可用权限菜单
+export function menuRoleList() {
+  return request({
+    url: 'ucenter/menus',
+    method: 'get'
+  })
+}
