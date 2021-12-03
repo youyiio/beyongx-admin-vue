@@ -379,7 +379,7 @@ export function buildMenus(arr) {
       showMenu.push({
         alwaysShow: true,
         component: item.component ? item.component : 'Layout',
-        hidden: item.isMenu !== 1,
+        hidden: !((item.isMenu === 1 || item.isMenu === true)),
         meta: { icon: item.icon, noCache: true, title: item.title },
         name: item.name,
         path: item.type === 0 ? item.path : '/' + item.path,
@@ -389,7 +389,7 @@ export function buildMenus(arr) {
     } else {
       showMenu.push({
         component: item.component ? item.component : 'Layout',
-        hidden: item.isMenu !== 1,
+        hidden: !((item.isMenu === 1 || item.isMenu === true)),
         meta: { icon: item.icon, noCache: true, title: item.title },
         name: item.name,
         path: item.path

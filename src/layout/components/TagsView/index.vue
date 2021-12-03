@@ -107,7 +107,15 @@ export default {
     addTags() {
       const { name } = this.$route
       if (name) {
-        this.$store.dispatch('tagsView/addView', this.$route)
+        let addRoute = {}
+        const addRoutePath = path.resolve('/', this.$route.path)
+        addRoute = Object.assign({
+          fullPath: addRoutePath,
+          path: addRoutePath,
+          name: this.$route.name,
+          meta: { ...this.$route.meta }
+        })
+        this.$store.dispatch('tagsView/addView', addRoute)
       }
       return false
     },
