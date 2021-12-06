@@ -50,7 +50,7 @@
           <span v-else> 否 </span>
         </template>
       </el-table-column>
-      <el-table-column label="创建日期" width="135px" />
+      <el-table-column label="创建日期" width="135px" prop="createTime" />
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -58,6 +58,7 @@
         </template>
       </el-table-column>
     </el-table>
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getMenuList()" />
     <!--表单渲染-->
     <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="dialogFormVisible" :title="titleMap[dialogStatus] + '菜单'" width="580px">
       <el-form ref="dataForm" :inline="true" :model="formData" :rules="rules" size="small" label-width="80px">
@@ -113,8 +114,6 @@
         <el-button type="primary" @click="handleConfirm()">确认</el-button>
       </div>
     </el-dialog>
-
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getMenuList()" />
   </div>
 </template>
 
