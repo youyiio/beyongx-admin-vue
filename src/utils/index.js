@@ -392,7 +392,8 @@ export function buildMenus(arr) {
         hidden: !((item.isMenu === 1 || item.isMenu === true)),
         meta: { icon: item.icon, noCache: true, title: item.title },
         name: item.name,
-        path: item.path
+        path: item.path,
+        children: item.hasChildren && Array.isArray(item.children) ? buildMenus(item.children) : null
       })
     }
   })

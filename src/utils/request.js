@@ -60,7 +60,7 @@ service.interceptors.response.use(
       })
 
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
-      if (res.code === 6) {
+      if (res.code === 6 || res.code === 7 || res.code === 8) {
         for (const i in penddingUrl) {
           penddingUrl[i].fun()
           penddingUrl.splice(i, 1)
