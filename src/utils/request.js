@@ -10,9 +10,16 @@ const service = axios.create({
   timeout: 5000 // request timeout
 })
 
+// 针对token过期多个请求同时请求的问题
+const CancelToken = axios.CancelToken
+const penddingUrl = []
+
 // request interceptor
 service.interceptors.request.use(
   config => {
+    config.cancelToken = new CancelToken((c) => {
+      penddingUrl.push({ fun: c, url: config.url })
+    })
     // do something before request is sent
     if (store.getters.token) {
       // let each request carry token
@@ -54,10 +61,14 @@ service.interceptors.response.use(
 
       // 50008: Illegal token; 50012: Other clients logged in; 50014: Token expired;
       if (res.code === 6) {
+        for (const i in penddingUrl) {
+          penddingUrl[i].fun()
+          penddingUrl.splice(i, 1)
+        }
         // to re-login
-        MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-          confirmButtonText: 'Re-Login',
-          cancelButtonText: 'Cancel',
+        MessageBox.confirm('您即将退出，您可以取消留在当前页或者重新登录！', '确认退出', {
+          confirmButtonText: '重新登录',
+          cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           store.dispatch('ResetToken').then(() => {
@@ -67,6 +78,11 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.message || 'Error'))
     } else {
+      for (const i in penddingUrl) {
+        if (response.config.url === penddingUrl[i].url) {
+          penddingUrl.splice(i, 1)
+        }
+      }
       return res
     }
   },

@@ -96,6 +96,19 @@ import Pagination from '@/components/Pagination'
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
+const defaultListQuery = {
+  page: 1,
+  size: 20,
+  filters: {
+    keyword: undefined,
+    status: undefined,
+    categoryId: undefined,
+    dateTime: '',
+    startTime: '',
+    endTime: ''
+  }
+}
+
 export default {
   name: 'ArticleList',
   components: { Pagination, Treeselect },
@@ -131,18 +144,7 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
-      listQuery: {
-        page: 1,
-        size: 20,
-        filters: {
-          keyword: undefined,
-          status: undefined,
-          categoryId: undefined,
-          dateTime: '',
-          startTime: '',
-          endTime: ''
-        }
-      },
+      listQuery: Object.assign(JSON.parse(JSON.stringify(defaultListQuery))),
       statusOptions: [-1, 0, 1, 2, 3, 4, 5],
       downloadLoading: false
     }
@@ -190,7 +192,9 @@ export default {
         this.listQuery.filters.startTime = ''
         this.listQuery.filters.endTime = ''
       }
-      articleList(this.listQuery).then((response) => {
+      const queryDatas = Object.assign(JSON.parse(JSON.stringify(this.listQuery)))
+      queryDatas.filters.dateTime = undefined
+      articleList(queryDatas).then((response) => {
         this.list = response.data.records
         this.total = response.data.total
         this.listLoading = false
