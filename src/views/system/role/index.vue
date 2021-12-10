@@ -2,12 +2,14 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="roleSelections.length !== 1" @click="handleUpdate(roleSelections[0])"> 修改 </el-button>
-          <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="roleSelections.length !== 1" @click="handleDelete(roleSelections[0])"> 删除 </el-button>
-        </span>
+      <div>
+        <div class="crud-opts">
+          <span class="crud-opts-left">
+            <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
+            <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="roleSelections.length !== 1" @click="handleUpdate(roleSelections[0])"> 修改 </el-button>
+            <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="roleSelections.length !== 1" @click="handleDelete(roleSelections[0])"> 删除 </el-button>
+          </span>
+        </div>
       </div>
     </div>
     <!-- 表格渲染 -->
@@ -54,7 +56,7 @@
             check-strictly
             accordion
             show-checkbox
-node-key="id"
+            node-key="id"
             @check="handleMenuChange"
           />
         </el-card>
@@ -82,7 +84,7 @@ node-key="id"
 </template>
 
 <script>
-import { roleCreate, roleDelete, roleList, roleMenuList, roleMenuUpdate, roleUpdate } from '@/api/system/role'
+import { roleCreate, roleDelete, roleList, roleMenuUpdate, roleUpdate } from '@/api/system/role'
 import { menuList } from '@/api/system/menu'
 import Pagination from '@/components/Pagination'
 
@@ -249,6 +251,13 @@ export default {
           type: 'success'
         })
         this.menuLoading = false
+        const index = this.list.findIndex(v => v.id === this.currentRoleId)
+        if (index !== -1) {
+          this.list[index].menuIds = []
+          for (const menuId of this.menuIds) {
+            this.list[index].menuIds.push(menuId)
+          }
+        }
       })
     },
     // 菜单点击改变状态
@@ -309,12 +318,10 @@ export default {
         this.$refs.menuTree.setCheckedKeys([])
         this.currentRoleId = val.id
         this.menuIds = []
-        roleMenuList(val.id).then((res) => {
-          res.data.forEach(item => {
-            _this.menuIds.push(item.id)
-          })
-          this.$refs.menuTree.setCheckedKeys(_this.menuIds)
-        })
+        for (const menuId of val.menuIds) {
+          _this.menuIds.push(menuId)
+        }
+        this.$refs.menuTree.setCheckedKeys(_this.menuIds)
         this.showButton = true
       }
     }

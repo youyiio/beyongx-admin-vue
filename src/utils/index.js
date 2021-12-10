@@ -2,6 +2,8 @@
  * Created by PanJiaChen on 16/11/18.
  */
 
+import path from 'path'
+
 /**
  * Parse the time to string
  * @param {(Object|string|number)} time
@@ -375,27 +377,27 @@ export function filterTree(arr, lazy = false) {
 export function buildMenus(arr) {
   const showMenu = []
   arr.forEach(item => {
-    if (item.pid === 0) {
-      showMenu.push({
-        alwaysShow: true,
-        component: item.component ? item.component : 'Layout',
-        hidden: !((item.isMenu === 1 || item.isMenu === true)),
-        meta: { icon: item.icon, noCache: true, title: item.title },
-        name: item.name,
-        path: item.type === 0 ? item.path : '/' + item.path,
-        redirect: 'noRedirect',
-        children: item.hasChildren && Array.isArray(item.children) ? buildMenus(item.children) : null
-      })
-    } else {
-      showMenu.push({
-        component: item.component ? item.component : 'Layout',
-        hidden: !((item.isMenu === 1 || item.isMenu === true)),
-        meta: { icon: item.icon, noCache: true, title: item.title },
-        name: item.name,
-        path: item.path,
-        children: item.hasChildren && Array.isArray(item.children) ? buildMenus(item.children) : null
-      })
+    const menu = {
+      name: item.name,
+      path: item.type === 0 ? item.path : path.resolve('/', item.path),
+      component: item.component ? item.component : 'Layout',
+      hidden: !(item.isMenu === 1 || item.isMenu === true),
+      meta: { icon: item.icon, noCache: true, title: item.title },
+      props: true
     }
+    if (item.pid === 0) {
+      Object.assign(menu, { redirect: 'noRedirect' })
+    }
+    if (item.hasChildren && Array.isArray(item.children)) {
+      item.children.some(value => {
+        if (value.isMenu === 1 || value.isMenu === true) {
+          Object.assign(menu, { alwaysShow: true })
+          return true
+        }
+      })
+      Object.assign(menu, { children: buildMenus(item.children) })
+    }
+    showMenu.push(menu)
   })
   return showMenu
 }

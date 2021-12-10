@@ -85,6 +85,7 @@
     </el-table>
 
     <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getArticleList()" />
+
   </div>
 </template>
 
@@ -271,14 +272,14 @@ export default {
     // 文章详情
     handleDetail(row) {
       this.$router.push({
-        path: '/cms/articleDetail',
+        path: '/articleDetail',
         query: { articleId: row.id }
       })
     },
     // 新增文章
     handleCreate() {
       this.$router.push({
-        path: '/cms/articleCreate'
+        path: '/articleCreate'
       })
     },
     // 编辑文章

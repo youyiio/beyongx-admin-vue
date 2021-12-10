@@ -26,7 +26,7 @@
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/user/center">
+          <router-link to="/userCenter">
             <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
           <el-dropdown-item divided @click.native="logout">

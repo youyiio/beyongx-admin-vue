@@ -25,7 +25,7 @@
       @select-all="handleSelectAll"
     >
       <el-table-column type="selection" width="50" />
-      <el-table-column label="菜单标题" width="150px" prop="title" />
+      <el-table-column label="菜单标题" width="160px" prop="title" />
       <el-table-column label="图标" align="center" width="60px" prop="icon">
         <template slot-scope="{ row }">
           <svg-icon :icon-class="row.icon ? row.icon : ''" />
@@ -35,8 +35,8 @@
         <template slot-scope="{ row }"> {{ row.sort }} </template>
       </el-table-column>
       <el-table-column label="路由地址" prop="path" />
-      <el-table-column label="权限标识" width="120px" prop="permission" />
-      <el-table-column label="组件名称" width="100px" prop="name" />
+      <el-table-column label="权限标识" width="150px" prop="permission" />
+      <el-table-column label="组件名称" width="150px" prop="name" />
       <el-table-column label="组件地址" prop="component" />
       <el-table-column label="外链" align="center" width="75px">
         <template slot-scope="{ row }">
@@ -136,6 +136,7 @@ const defaultListQuery = {
 }
 
 const defaultFormData = {
+  belongsTo: 'api',
   id: undefined,
   type: 0,
   icon: '',
