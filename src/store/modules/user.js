@@ -18,7 +18,10 @@ const user = {
       state.user = user
     },
     SET_ROLES: (state, roles) => {
-      state.roles = roles
+      roles.forEach(element => {
+        state.roles.push(element.name)
+      })
+      // state.roles = roles
     },
     SET_LOAD_MENUS: (state, loadMenus) => {
       state.loadMenus = loadMenus

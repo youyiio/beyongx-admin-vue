@@ -64,3 +64,21 @@ export function userModifyPwd(data) {
     data
   })
 }
+
+// 用户中心修改资料
+export function userProfile(data) {
+  return request({
+    url: '/ucenter/profile',
+    method: 'post',
+    data
+  })
+}
+
+// 用户中心修改密码
+export function ucenterModifyPwd(data) {
+  return request({
+    url: '/ucenter/modifyPassword',
+    method: 'post',
+    data
+  })
+}

@@ -195,6 +195,7 @@ export default {
         this.list = res.data.records
         this.total = res.data.total
         this.listLoading = false
+        console.log(this.list)
       })
     },
     // 获取下级目录
@@ -207,6 +208,7 @@ export default {
           resolve(res.data.records)
         })
       }, 100)
+      console.log(this.list)
     },
     // 加载子目录列表
     loadChildrenMenu({ action, parentNode, callback }) {

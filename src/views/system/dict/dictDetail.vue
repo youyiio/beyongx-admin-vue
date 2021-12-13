@@ -8,8 +8,8 @@
       <el-table ref="detailTable" v-loading="listLoading" :data="detailList" highlight-current-row style="width: 100%;">
         <el-table-column label="所属字典组" width="150px"> {{ dictName }} </el-table-column>
         <el-table-column label="名称" prop="name" width="150px" />
-        <el-table-column label="字典标签" :show-overflow-tooltip="true" prop="value" />
-        <el-table-column label="字典值" prop="key" width="150px" />
+        <el-table-column label="字典键" prop="key" width="180px" />
+        <el-table-column label="字典值" :show-overflow-tooltip="true" prop="value" />
         <el-table-column label="排序" prop="sort" align="center" width="80px" />
         <el-table-column label="操作" width="130px" align="center" fixed="right">
           <template slot-scope="{ row }">
@@ -30,11 +30,11 @@
         <el-form-item label="字典名称" prop="name">
           <el-input v-model="formData.name" style="width: 370px;" />
         </el-form-item>
-        <el-form-item label="字典标签" prop="value">
-          <el-input v-model="formData.value" style="width: 370px;" />
-        </el-form-item>
-        <el-form-item label="字典值" prop="key">
+        <el-form-item label="字典键" prop="key">
           <el-input v-model="formData.key" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item label="字典值" prop="value">
+          <el-input v-model="formData.value" style="width: 370px;" />
         </el-form-item>
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model.number="formData.sort" :min="0" :max="999" controls-position="right" style="width: 370px;" />
