@@ -22,7 +22,7 @@
 
       <el-dropdown class="avatar-container right-menu-item hover-effect" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="user.headUrl ? baseAdmin + user.headUrl : Avatar" class="user-avatar">
+          <img :src="user.headUrl ? baseUrl + user.headUrl : Avatar" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -67,7 +67,7 @@ export default {
       'sidebar',
       'device',
       'user',
-      'baseAdmin'
+      'baseUrl'
     ])
   },
   methods: {

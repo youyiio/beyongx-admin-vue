@@ -45,7 +45,7 @@ export default {
       return this.$store.state.tagsView.visitedViews
     },
     routes() {
-      return this.$store.state.permission.routes
+      return this.$store.state.permission.addRoutes
     }
   },
   watch: {
@@ -109,12 +109,13 @@ export default {
       if (name) {
         let addRoute = {}
         const addRoutePath = path.resolve('/', this.$route.path)
-        addRoute = Object.assign({
+        addRoute = Object.assign({}, {
           fullPath: addRoutePath,
           path: addRoutePath,
           name: this.$route.name,
           meta: { ...this.$route.meta }
         })
+        console.log(addRoute)
         this.$store.dispatch('tagsView/addView', addRoute)
       }
       return false

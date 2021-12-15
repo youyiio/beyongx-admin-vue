@@ -9,13 +9,8 @@
           <div>
             <div style="text-align: center">
               <div class="el-upload">
-                <img :src="user.headUrl ? baseAdmin + user.headUrl : Avatar" title="点击上传头像" class="avatar" @click="toggleShow">
-                <!-- <myUpload
-                  v-model="show"
-                  :headers="headers"
-                  :url="updateAvatarApi"
-                  @crop-upload-success="cropUploadSuccess"
-                /> -->
+                <img :src="user.headUrl ? baseUrl + user.headUrl : Avatar" title="点击上传头像" class="avatar" @click="toggleShow">
+                <imageUpload ref="imageUpload" field="file" :model-value.sync="uploadShow" :url="baseApi + '/image/upload'" :headers="headers" @crop-success="cropSuccess" @crop-upload-success="cropUploadSuccess" @crop-upload-fail="cropUploadFail" />
               </div>
             </div>
             <ul class="user-info">
@@ -103,20 +98,23 @@
 <script>
 import { userProfile } from '@/api/system/user'
 import { mapGetters } from 'vuex'
+import { getToken } from '@/utils/auth'
 import Avatar from '@/assets/images/avatar.png'
 import updatePwd from './updatePwd'
+import imageUpload from 'vue-image-crop-upload'
+import store from '@/store'
 
 export default {
   name: 'UserCenter',
-  components: { updatePwd },
+  components: { updatePwd, imageUpload },
   data() {
     return {
-      show: false,
+      uploadShow: false,
       Avatar: Avatar,
       activeName: 'first',
       saveLoading: false,
       headers: {
-        // 'Authorization': getToken()
+        'Authorization': getToken()
       },
       formData: {},
       rules: {
@@ -128,7 +126,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'baseAdmin',
+      'baseUrl',
+      'baseApi',
       'user'
     ])
   },
@@ -139,27 +138,47 @@ export default {
       mobile: this.user.mobile,
       email: this.user.email,
       description: this.user.description,
-      sex: this.user.sex
+      sex: this.user.sex,
+      headUrl: this.user.headUrl
     }
   },
   methods: {
     toggleShow() {
-      this.show = !this.show
+      this.uploadShow = !this.uploadShow
+      this.$refs.imageUpload.setStep(1)
     },
     handleSaveForm() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
+          this.saveLoading = true
           userProfile(this.formData).then((res) => {
             this.$message({
               message: '用户资料保存成功！',
               type: 'success'
             })
+            store.dispatch('GetInfo').then(() => {})
+            this.saveLoading = false
+          }).catch(() => {
+            this.saveLoading = false
           })
         } else {
           return false
         }
       })
-    }
+    },
+    cropSuccess(imgDataUrl, field) {},
+    cropUploadSuccess(jsonData, field) {
+      if (jsonData.code !== 1) {
+        this.$refs.imageUpload.loading = 3
+        this.$refs.imageUpload.hasError = true
+        this.$refs.imageUpload.errorMsg = jsonData.msg
+      } else {
+        this.formData.headUrl = jsonData.data.fileUrl
+        this.handleSaveForm()
+      }
+    },
+    cropUploadFail(status, field) {}
+
   }
 }
 </script>

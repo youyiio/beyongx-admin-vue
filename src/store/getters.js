@@ -12,7 +12,7 @@ const getters = {
   addRoutes: state => state.permission.addRoutes,
   sidebarRoutes: state => state.permission.sidebarRoutes,
   errorLogs: state => state.errorLog.logs,
-  baseAdmin: state => state.api.baseAdmin,
+  baseUrl: state => state.api.baseUrl,
   baseApi: state => state.api.baseApi
 }
 export default getters

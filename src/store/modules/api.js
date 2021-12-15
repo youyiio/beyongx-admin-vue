@@ -1,5 +1,5 @@
 // 适配 Nginx 反向代理
-const baseAdmin = process.env.VUE_APP_BASE_ADMIN === '/' ? '' : process.env.VUE_APP_BASE_ADMIN
+const baseUrl = process.env.VUE_APP_BASE === '/' ? '' : process.env.VUE_APP_BASE
 const baseApi = process.env.VUE_APP_BASE_API === '/' ? '' : process.env.VUE_APP_BASE_API
 
 const api = {
@@ -23,7 +23,7 @@ const api = {
     // // 文件上传
     // fileUploadApi: baseUrl + '/api/localStorage',
     // baseUrl，
-    baseAdmin: baseAdmin,
+    baseUrl: baseUrl,
     baseApi: baseApi
   }
 }
