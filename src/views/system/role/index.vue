@@ -1,15 +1,13 @@
 <template>
   <div class="app-container">
     <!--工具栏-->
-    <div class="head-container">
-      <div />
+    <div class="head-container" style="height:57px">
       <div class="crud-opts">
         <span class="crud-opts-left">
           <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="roleSelections.length !== 1" @click="handleUpdate(roleSelections[0])"> 修改 </el-button>
           <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="roleSelections.length !== 1" @click="handleDelete(roleSelections[0])"> 删除 </el-button>
         </span>
-        <span class="crud-opts-right" />
       </div>
     </div>
     <!-- 表格渲染 -->
