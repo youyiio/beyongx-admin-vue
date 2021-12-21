@@ -25,7 +25,9 @@
         <span class="crud-opts-left">
           <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="userSelections.length !== 1" @click="handleUpdate(userSelections[0])"> 修改 </el-button>
-          <el-button class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="userSelections.length !== 1 || userSelections[0]['status'] === -1" @click="handleDelete(userSelections[0])"> 删除 </el-button>
+          <el-popconfirm :title="`确认删除所选${userSelections.length}条数据吗？`" @onConfirm="handleDelete(userSelections[0])">
+            <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="userSelections.length !== 1 || userSelections[0]['status'] === -1"> 删除 </el-button>
+          </el-popconfirm>
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-key" :disabled="userSelections.length !== 1" @click="handlePwdUpdate(userSelections[0])"> 密码修改 </el-button>
         </span>
         <el-button-group class="crud-opts-right">
@@ -142,7 +144,9 @@
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="{ row }">
           <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0] || row.id === user.id" @click="handleDelete(row)" />
+          <el-popconfirm title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+            <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0] || row.id === user.id" />
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>

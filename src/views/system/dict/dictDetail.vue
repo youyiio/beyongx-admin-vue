@@ -14,7 +14,9 @@
         <el-table-column label="操作" width="130px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-            <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row)" />
+            <el-popconfirm title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+              <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" />
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>

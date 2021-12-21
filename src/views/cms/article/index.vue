@@ -26,7 +26,9 @@
           <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="articleSelections.length !== 1" @click="handleUpdate(articleSelections[0])"> 修改 </el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="publishable" @click="handlePublish(articleSelections)"> 发布 </el-button>
-          <el-button class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="deleteable" @click="handleDelete(articleSelections, 0)"> 删除 </el-button>
+          <el-popconfirm :title="`确认删除所选${articleSelections.length}条数据吗？`" @onConfirm="handleDelete(articleSelections[0])">
+            <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="deleteable"> 删除 </el-button>
+          </el-popconfirm>
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload()"> 导出 </el-button>
         </span>
         <el-button-group class="crud-opts-right">
@@ -79,7 +81,9 @@
         <template slot-scope="{ row, $index }">
           <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
           <el-button size="mini" type="success" icon="el-icon-thumb" :disabled="row.status === statusOptions[6]" @click="handlePublish(row)" />
-          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0]" @click="handleDelete(row, $index)" />
+          <el-popconfirm title="确认删除本条数据吗？" @onConfirm="handleDelete(row, $index)">
+            <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0]" />
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>

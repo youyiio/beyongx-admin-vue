@@ -6,7 +6,9 @@
         <span class="crud-opts-left">
           <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="menuSelections.length !== 1" @click="handleUpdate(menuSelections[0])"> 修改 </el-button>
-          <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="menuSelections.length !== 1" @click="handleDelete(menuSelections[0])"> 删除 </el-button>
+          <el-popconfirm :title="`确认删除所选${menuSelections.length}条数据吗？`" @onConfirm="handleDelete(menuSelections[0])">
+            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="menuSelections.length !== 1"> 删除 </el-button>
+          </el-popconfirm>
         </span>
       </div>
     </div>
@@ -46,7 +48,7 @@
       </el-table-column>
       <el-table-column label="目录" align="center" width="75px">
         <template slot-scope="{ row }">
-          <span v-if="row.isMenu === 1"> 是 </span>
+          <span v-if="row.isMenu === 1 || row.isMenu === true"> 是 </span>
           <span v-else> 否 </span>
         </template>
       </el-table-column>
@@ -54,7 +56,9 @@
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row)" />
+          <el-popconfirm title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+            <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" />
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -71,8 +75,8 @@
         </el-form-item>
         <el-form-item label="菜单可见" prop="hidden">
           <el-radio-group v-model="formData.isMenu" size="mini">
-            <el-radio-button label="1">是</el-radio-button>
-            <el-radio-button label="0">否</el-radio-button>
+            <el-radio-button :label="isTrue">是</el-radio-button>
+            <el-radio-button :label="isFalse">否</el-radio-button>
           </el-radio-group>
         </el-form-item>
         <el-form-item v-if="formData.type.toString() === '1'" label="菜单图标" prop="icon">
@@ -93,10 +97,10 @@
         <el-form-item label="菜单排序" prop="sort">
           <el-input-number v-model.number="formData.sort" :min="0" :max="999" controls-position="right" style="width: 178px;" />
         </el-form-item>
-        <el-form-item label="路由地址" prop="path">
-          <el-input v-model="formData.path" placeholder="路由地址" :style="formData.type.toString() !== '1' ? 'width: 450px' : 'width: 178px'" />
+        <el-form-item v-if="formData.type.toString() !== '2'" label="路由地址" prop="path">
+          <el-input v-model="formData.path" placeholder="路由地址" :style="formData.type.toString() !== '0' ? 'width: 178px' : 'width: 450px'" />
         </el-form-item>
-        <el-form-item v-if="formData.type.toString() === '1'" label="权限标识" prop="permission">
+        <el-form-item v-if="formData.type.toString() !== '0'" label="权限标识" prop="permission">
           <el-input v-model="formData.permission" placeholder="权限标识" style="width: 178px;" />
         </el-form-item>
         <el-form-item v-if="formData.type.toString() === '1'" label="组件名称" prop="name">
@@ -140,7 +144,7 @@ const defaultFormData = {
   id: undefined,
   type: 0,
   icon: '',
-  isMenu: 0,
+  isMenu: false,
   title: '',
   permission: '',
   path: '',
@@ -181,7 +185,9 @@ export default {
           id: node.id,
           label: node.title
         }
-      }
+      },
+      isTrue: true,
+      isFalse: false
     }
   },
   created() {
@@ -247,6 +253,7 @@ export default {
       for (const key in this.formData) {
         this.formData[key] = row[key]
       }
+      this.formData['isMenu'] = this.formData['isMenu'] === 1 ? true : this.formData['isMenu']
       this.formData = Object.assign(this.formData, { id: row.id })
       this.getMenuSelected(row.pid)
     },
