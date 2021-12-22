@@ -6,7 +6,7 @@ import 'nprogress/nprogress.css'
 import { getToken } from '@/utils/auth'
 import { filterAsyncRoutes } from '@/store/modules/permission'
 import { menuRoleList } from '@/api/system/menu'
-import { buildMenus } from '@/utils'
+import { buildMenus, buildPermissions } from '@/utils'
 
 NProgress.configure({ showSpinner: false })
 
@@ -58,6 +58,8 @@ router.afterEach(() => {
 export const loadMenus = (next, to) => {
   menuRoleList().then(res => {
     const menus = buildMenus(res.data)
+    const permissions = buildPermissions(res.data)
+    store.dispatch('SetRoles', permissions)
     const sdata = JSON.parse(JSON.stringify(menus))
     const rdata = JSON.parse(JSON.stringify(menus))
     const sidebarRoutes = filterAsyncRoutes(sdata)

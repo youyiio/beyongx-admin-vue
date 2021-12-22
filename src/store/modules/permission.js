@@ -6,7 +6,8 @@ const permission = {
   state: {
     routes: constantRoutes,
     addRoutes: [],
-    sidebarRoutes: []
+    sidebarRoutes: [],
+    roles: []
   },
   mutations: {
     SET_ROUTES: (state, routes) => {
@@ -15,6 +16,9 @@ const permission = {
     },
     SET_SIDEBAR_ROUTES: (state, routes) => {
       state.sidebarRoutes = constantRoutes.concat(routes)
+    },
+    SET_ROLES: (state, permissions) => {
+      state.roles = permissions
     }
   },
   actions: {
@@ -23,6 +27,13 @@ const permission = {
     },
     SetSidebarRoutes({ commit }, sidebarRoute) {
       commit('SET_SIDEBAR_ROUTES', sidebarRoute)
+    },
+    SetRoles({ commit }, permissions) {
+      if (permissions.length === 0) {
+        commit('SET_ROLES', ['ROLE_SYSTEM_DEFAULT'])
+      } else {
+        commit('SET_ROLES', permissions)
+      }
     }
   }
 }

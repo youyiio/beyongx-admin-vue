@@ -12,10 +12,10 @@
         <span class="crud-opts-left">
           <!--左侧插槽-->
           <slot name="left" />
-          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus"> 新增 </el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit"> 修改 </el-button>
-          <el-button class="filter-item" type="danger" icon="el-icon-delete" size="mini"> 删除 </el-button>
-          <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload"> 导出 </el-button>
+          <el-button v-permission="['comment:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus"> 新增 </el-button>
+          <el-button v-permission="['comment:update']" class="filter-item" size="mini" type="success" icon="el-icon-edit"> 修改 </el-button>
+          <el-button v-permission="['comment:delete']" class="filter-item" type="danger" icon="el-icon-delete" size="mini"> 删除 </el-button>
+          <!-- <el-button v-permission="['comment:export']" class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload"> 导出 </el-button> -->
           <!--右侧-->
           <slot name="right" />
         </span>
@@ -54,9 +54,9 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row, $index }">
-          <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-button size="mini" type="success" @click="handlePublish(row)"> 审核 </el-button>
-          <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row, $index)" />
+          <el-button v-permission="['comment:update']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
+          <el-button v-permission="['comment:audit']" size="mini" type="success" @click="handlePublish(row)"> 审核 </el-button>
+          <el-button slot="reference" v-permission="['comment:delete']" size="mini" type="danger" icon="el-icon-delete" @click="handleDelete(row, $index)" />
         </template>
       </el-table-column>
     </el-table>

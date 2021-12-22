@@ -4,9 +4,9 @@
     <div class="head-container">
       <div class="crud-opts">
         <span class="crud-opts-left">
-          <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="jobSelections.length !== 1" @click="handleUpdate(jobSelections[0])"> 修改 </el-button>
-          <el-popconfirm :title="`确认删除所选${jobSelections.length}条数据吗？`" @onConfirm="handleDelete(jobSelections[0])">
+          <el-button v-permission="['job:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
+          <el-button v-permission="['job:update']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="jobSelections.length !== 1" @click="handleUpdate(jobSelections[0])"> 修改 </el-button>
+          <el-popconfirm v-permission="['job:delete']" :title="`确认删除所选${jobSelections.length}条数据吗？`" @onConfirm="handleDelete(jobSelections[0])">
             <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="jobSelections.length !== 1"> 删除 </el-button>
           </el-popconfirm>
         </span>
@@ -24,8 +24,8 @@
       <el-table-column label="创建日期" width="135px" prop="createTime" />
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
-          <el-button size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-popconfirm title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+          <el-button v-permission="['job:update']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
+          <el-popconfirm v-permission="['job:delete']" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" />
           </el-popconfirm>
         </template>

@@ -16,7 +16,7 @@
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>字典详情</span>
-            <el-button class="filter-item" size="mini" type="primary" icon="el-icon-plus" style="float: right;padding: 4px 10px" @click="handleCreate()"> 新增 </el-button>
+            <el-button v-permission="['dict:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" style="float: right;padding: 4px 10px" @click="handleCreate()"> 新增 </el-button>
           </div>
           <dictDetail ref="dictDetail" />
         </el-card>

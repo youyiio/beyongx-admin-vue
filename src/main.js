@@ -15,14 +15,16 @@ import router from './router/routers'
 
 import './assets/icons' // icon
 import './router/index'
-// import './permission' // permission control
 import './utils/error-log' // error log
+import permission from '@/directive/permission'
 
 import * as filters from './filters' // global filters
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'small' // set element-ui default size
 })
+
+Vue.use(permission)
 
 // register global utility filters
 Object.keys(filters).forEach(key => {

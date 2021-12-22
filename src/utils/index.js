@@ -401,3 +401,16 @@ export function buildMenus(arr) {
   })
   return showMenu
 }
+
+export function buildPermissions(arr) {
+  let permissions = []
+  arr.forEach(menu => {
+    if (menu.permission) {
+      permissions.push(menu.permission)
+    }
+    if (menu.hasChildren && Array.isArray(menu.children)) {
+      permissions = permissions.concat(buildPermissions(menu.children))
+    }
+  })
+  return permissions
+}
