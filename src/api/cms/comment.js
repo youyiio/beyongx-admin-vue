@@ -12,32 +12,17 @@ export function commentList(data) {
   })
 }
 
-// 创建新文章
-export function createComment() {
-  return request({
-    url: '/comment/create',
-    method: 'post'
-  })
-}
-
-// 编辑文章
-export function editComment() {
-  return request({
-    url: '/comment/edit',
-    method: 'post'
-  })
-}
-
 // 审核文章
-export function auditComment() {
+export function commentAudit(data) {
   return request({
     url: '/comment/audit',
-    method: 'post'
+    method: 'post',
+    data
   })
 }
 
 // 删除文章
-export function deleteComment(data) {
+export function commentDelete(data) {
   return request({
     url: '/comment/delete',
     method: 'delete',
