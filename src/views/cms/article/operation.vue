@@ -9,7 +9,7 @@
           <div>
             <el-form ref="dataForm" :model="formData" :rules="rules" label-width="80px" size="mini" style="margin-left:50px;">
               <el-form-item label="文章标题" prop="title">
-                <el-input v-model="formData.title" style="width: 250px;" />
+                <el-input v-model="formData.title" style="width: 600px;" />
               </el-form-item>
               <el-form-item label="文章分类" prop="categoryIds">
                 <treeselect
@@ -19,20 +19,20 @@
                   :searchable="false"
                   :options="categoryOptions"
                   :normalizer="normalizer"
-                  style="width: 250px;"
+                  style="width: 600px;"
                   placeholder="选择所属分类"
                   size="mini"
                   @change="test()"
                 />
               </el-form-item>
               <el-form-item label="关键词" prop="keywords">
-                <el-input v-model="formData.keywords" style="width: 250px;" />
+                <el-input v-model="formData.keywords" style="width: 600px;" />
               </el-form-item>
               <el-form-item label="摘要" prop="description">
-                <el-input v-model="formData.description" type="textarea" rows="5" style="width: 250px;" />
+                <el-input v-model="formData.description" type="textarea" rows="5" style="width: 600px;" />
               </el-form-item>
               <el-form-item label="文章内容" prop="content" style="margin-bottom: 30px;">
-                <Tinymce ref="editor" v-model="formData.content" :width="800" :height="400" />
+                <Tinymce ref="editor" v-model="formData.content" :width="600" :height="400" />
               </el-form-item>
               <el-form-item>
                 <el-button v-if="operStatus === 'create'" type="primary" icon="el-icon-plus" @click="handleSubmit()"> 立即发布 </el-button>

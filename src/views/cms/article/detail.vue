@@ -21,6 +21,12 @@ import { articleDetail } from '@/api/cms/article'
 
 export default {
   name: 'ArticleDetail',
+  props: {
+    articleId: {
+      type: Number,
+      default: 0
+    }
+  },
   data() {
     return {
       record: ''
@@ -31,8 +37,7 @@ export default {
   },
   methods: {
     getArticle() {
-      const articleId = this.$route.query.articleId
-      articleDetail(articleId).then((res) => {
+      articleDetail(this.articleId).then((res) => {
         this.record = res.data
       })
     }
