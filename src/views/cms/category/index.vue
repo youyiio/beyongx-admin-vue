@@ -80,7 +80,7 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 const defaultFormData = { id: undefined, title: '', name: '', remark: '', isTop: '1', sort: 999, status: 1, pid: null }
 
 export default {
-  name: 'CategoryList',
+  name: 'CategoryIndex',
   components: { Treeselect, Pagination },
   data() {
     return {

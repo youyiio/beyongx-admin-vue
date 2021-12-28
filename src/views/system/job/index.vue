@@ -69,7 +69,7 @@ const defaultFormData = {
 }
 
 export default {
-  name: 'JobList',
+  name: 'JobIndex',
   components: { Pagination },
   data() {
     return {

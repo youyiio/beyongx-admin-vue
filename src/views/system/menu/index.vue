@@ -155,7 +155,7 @@ const defaultFormData = {
 }
 
 export default {
-  name: 'MenuList',
+  name: 'MenuIndex',
   components: { IconSelect, Treeselect, Pagination },
   data() {
     return {

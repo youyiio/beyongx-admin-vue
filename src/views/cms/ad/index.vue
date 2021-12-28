@@ -105,7 +105,7 @@ const defaultListQuery = {
 }
 
 export default {
-  name: 'AdList',
+  name: 'AdIndex',
   components: { Pagination },
   data() {
     return {

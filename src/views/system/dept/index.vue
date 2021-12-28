@@ -98,7 +98,7 @@ const defaultFormData = {
 }
 
 export default {
-  name: 'DeptList',
+  name: 'DeptIndex',
   components: { Pagination, Treeselect },
   data() {
     return {

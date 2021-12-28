@@ -113,7 +113,7 @@ const defaultFormData = {
 }
 
 export default {
-  name: 'RoleList',
+  name: 'RoleIndex',
   components: { Pagination },
   data() {
     return {
