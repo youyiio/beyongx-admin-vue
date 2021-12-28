@@ -25,7 +25,7 @@ import store from '@/store'
 import { ucenterModifyPwd } from '@/api/system/user'
 
 export default {
-  name: 'UpdatePassword',
+  name: 'UserUpdatePwd',
   data() {
     const confirmPass = (rule, value, callback) => {
       if (value) {

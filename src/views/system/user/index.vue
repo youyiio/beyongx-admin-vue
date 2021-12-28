@@ -185,7 +185,7 @@ const defaultListQuery = {
 }
 
 export default {
-  name: 'UserList',
+  name: 'UserIndex',
   components: { Pagination },
   filters: {
     statusFilter(status) {

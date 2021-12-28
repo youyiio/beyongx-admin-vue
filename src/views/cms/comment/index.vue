@@ -74,7 +74,7 @@ import { commentList, commentAudit, commentDelete } from '@/api/cms/comment'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'CommentList',
+  name: 'CommentIndex',
   components: { Pagination },
   filters: {
     statusFilter(status) {

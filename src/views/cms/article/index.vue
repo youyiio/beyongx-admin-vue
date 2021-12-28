@@ -115,7 +115,7 @@ const defaultListQuery = {
 }
 
 export default {
-  name: 'ArticleList',
+  name: 'ArticleIndex',
   components: { Pagination, Treeselect },
   filters: {
     statusFilter(status) {

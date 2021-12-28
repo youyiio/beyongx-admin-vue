@@ -26,12 +26,12 @@
 </template>
 
 <script>
-import dictDetail from './dictDetail'
+import dictDetail from './detail'
 import { dictList } from '@/api/system/dict'
 import Pagination from '@/components/Pagination'
 
 export default {
-  name: 'DictList',
+  name: 'DictIndex',
   components: { Pagination, dictDetail },
   data() {
     return {
