@@ -8,7 +8,7 @@ import request from '@/utils/request'
 export function serverStatus(data) {
   return request({
     url: '/server/status',
-    method: 'post',
+    method: 'get',
     data
   })
 }
