@@ -383,11 +383,12 @@ export function buildMenus(arr) {
       component: item.component ? item.component : 'Layout',
       hidden: !(item.isMenu === 1 || item.isMenu === true),
       meta: { icon: item.icon, noCache: true, title: item.title },
+      redirect: 'noRedirect',
       props: true
     }
-    if (item.pid === 0) {
-      Object.assign(menu, { redirect: 'noRedirect' })
-    }
+    // if (item.pid === 0) {
+    //   Object.assign(menu, { redirect: 'noRedirect' })
+    // }
     if (item.hasChildren && Array.isArray(item.children)) {
       item.children.some(value => {
         if (value.isMenu === 1 || value.isMenu === true) {

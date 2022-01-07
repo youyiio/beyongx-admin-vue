@@ -56,7 +56,7 @@
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button v-permission="['menu:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-popconfirm v-permission="['menu:delete']" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+          <el-popconfirm v-permission="['menu:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" />
           </el-popconfirm>
         </template>

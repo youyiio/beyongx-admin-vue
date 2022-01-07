@@ -81,7 +81,7 @@
         <template slot-scope="{ row, $index }">
           <el-button v-permission="['article:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
           <el-button v-permission="['article:publish']" size="mini" type="success" icon="el-icon-thumb" :disabled="row.status === statusOptions[6]" @click="handlePublish(row)" />
-          <el-popconfirm v-permission="['article:delete']" title="确认删除本条数据吗？" @onConfirm="handleDelete(row, $index)">
+          <el-popconfirm v-permission="['article:delete']" title="确认删除本条数据吗？" style="margin-left: 10px" @onConfirm="handleDelete(row, $index)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0]" />
           </el-popconfirm>
         </template>

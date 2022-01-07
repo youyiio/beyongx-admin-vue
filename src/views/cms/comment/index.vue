@@ -58,7 +58,7 @@
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row, $index }">
           <el-button v-permission="['comment:audit']" size="mini" type="success" :disabled="row.status === statusOptions[4]" @click="handleAudit(row)"> 审核 </el-button>
-          <el-popconfirm v-permission="['comment:delete']" title="确认删除本条数据吗？" @onConfirm="handleDelete(row, $index)">
+          <el-popconfirm v-permission="['comment:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @onConfirm="handleDelete(row, $index)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0]" />
           </el-popconfirm>
         </template>

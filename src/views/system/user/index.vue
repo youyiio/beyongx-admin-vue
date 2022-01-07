@@ -70,6 +70,14 @@
             <el-radio :label="3">冻结</el-radio>
           </el-radio-group>
         </el-form-item> -->
+        <el-form-item label="部门" prop="deptId">
+          <treeselect v-model="formData.deptId" :options="deptOptions" :load-options="loadChildrenDept" :normalizer="normalizer" style="width: 250px;" :searchable="false" placeholder="选择部门" />
+        </el-form-item>
+        <el-form-item label="岗位" prop="jobIds">
+          <el-select v-model="formData.jobIds" style="width: 250px" multiple placeholder="请选择岗位">
+            <el-option v-for="job in jobData" :key="job.id" :label="job.title" :value="job.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="角色" prop="roleIds">
           <el-select v-model="formData.roleIds" :disabled="formData.id === user.id" style="width: 437px" multiple placeholder="请选择">
             <el-option v-for="item in rolesData" :key="item.id" :label="item.title" :value="item.id" />
@@ -144,7 +152,7 @@
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="{ row }">
           <el-button v-permission="['user:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-popconfirm v-permission="['user:delete']" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+          <el-popconfirm v-permission="['user:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0] || row.id === user.id" />
           </el-popconfirm>
         </template>
@@ -157,8 +165,13 @@
 <script>
 import { userCreate, userDelete, userFreeze, userList, userModifyPwd, userUnfreeze, userUpdate } from '@/api/system/user'
 import { roleList } from '@/api/system/role'
+import { deptList } from '@/api/system/dept'
+import { jobList } from '@/api/system/job'
 import Pagination from '@/components/Pagination'
 import { mapGetters } from 'vuex'
+import Treeselect from '@riophae/vue-treeselect'
+import { LOAD_CHILDREN_OPTIONS } from '@riophae/vue-treeselect'
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 const defaultFormData = {
   id: undefined,
@@ -168,6 +181,8 @@ const defaultFormData = {
   email: '',
   sex: 1,
   // status: 2,
+  deptId: null,
+  jobIds: [],
   roleIds: [],
   password: '',
   confirmPassword: ''
@@ -184,9 +199,19 @@ const defaultListQuery = {
   }
 }
 
+const deptDefaultListQuery = {
+  page: 1,
+  size: 50,
+  filters: {
+    struct: 'tree',
+    pid: 0,
+    depth: 1
+  }
+}
+
 export default {
   name: 'UserIndex',
-  components: { Pagination },
+  components: { Pagination, Treeselect },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -264,6 +289,16 @@ export default {
       },
       dialogFormVisible: false,
       formData: Object.assign(JSON.parse(JSON.stringify(defaultFormData))),
+      deptOptions: [],
+      deptDefaultListQuery: Object.assign(JSON.parse(JSON.stringify(deptDefaultListQuery))),
+      normalizer(node) {
+        return {
+          id: node.id,
+          label: node.title,
+          children: node.children
+        }
+      },
+      jobData: [],
       rolesData: [],
       rules: {
         account: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -355,11 +390,57 @@ export default {
         })
       })
     },
+    // 获取部门列表
+    getDeptList() {
+      this.deptOptions = []
+      deptList(this.deptDefaultListQuery).then((res) => {
+        const depts = res.data.records
+        depts.forEach(dept => {
+          if (dept.hasChildren === true) {
+            dept.children = null
+          }
+          this.deptOptions.push(dept)
+        })
+      })
+    },
+    // 加载部门列表
+    loadChildrenDept({ action, parentNode, callback }) {
+      if (action === LOAD_CHILDREN_OPTIONS) {
+        const loadQuery = Object.assign(JSON.parse(JSON.stringify(deptDefaultListQuery)))
+        loadQuery.filters.pid = parentNode.id
+        deptList(loadQuery).then((res) => {
+          parentNode.children = res.data.records.map(function(obj) {
+            if (obj.hasChildren) {
+              obj.children = null
+            }
+            return obj
+          })
+          setTimeout(() => {
+            callback()
+          }, 100)
+        })
+      }
+    },
+    // 获取岗位列表
+    getJobList() {
+      this.jobData = []
+      const jobListQuery = {
+        page: 1,
+        size: 50,
+        filters: {}
+      }
+      jobList(jobListQuery).then((res) => {
+        this.jobData = res.data.records
+      })
+    },
     // 新增用户
     handleCreate() {
       this.formData = Object.assign(JSON.parse(JSON.stringify(defaultFormData)))
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
+      this.deptDefaultListQuery = Object.assign(JSON.parse(JSON.stringify(deptDefaultListQuery)))
+      this.getDeptList()
+      this.getJobList()
       this.getRolesData()
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -370,6 +451,10 @@ export default {
       this.formData = Object.assign(JSON.parse(JSON.stringify(defaultFormData)))
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
+      this.deptDefaultListQuery = Object.assign(JSON.parse(JSON.stringify(deptDefaultListQuery)))
+      this.deptDefaultListQuery.filters.depth = 5
+      this.getDeptList()
+      this.getJobList()
       this.getRolesData()
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -377,6 +462,12 @@ export default {
       this.formData.id = row.id
       for (const key in this.formData) {
         this.formData[key] = row[key]
+      }
+      this.formData.deptId = row.dept.id
+      if (row.jobIds && Array.isArray(row.jobIds)) {
+        this.formData.jobIds = row.jobIds.map(item => {
+          return item.id
+        })
       }
       if (row.roles && Array.isArray(row.roles)) {
         this.formData.roleIds = row.roles.map(item => {
@@ -392,6 +483,8 @@ export default {
         mobile: this.formData.mobile,
         email: this.formData.email,
         sex: this.formData.sex,
+        deptId: this.formData.deptId,
+        jobIds: this.formData.jobIds,
         roleIds: this.formData.roleIds
       }
       this.$refs['dataForm'].validate((valid) => {
