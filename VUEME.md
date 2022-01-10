@@ -19,6 +19,12 @@ vue --version
 npm install
 ```
 
+### 清理缓存
+
+rd /s /q node_modules
+
+npm cache clean -f
+
 ### 开发模式,支持热加载（Compiles and hot-reloads for development）
 
 ```

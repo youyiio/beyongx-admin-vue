@@ -5,10 +5,10 @@
 <script>
 // deps for editor
 import 'codemirror/lib/codemirror.css' // codemirror
-import 'tui-editor/dist/tui-editor.css' // editor ui
-import 'tui-editor/dist/tui-editor-contents.css' // editor content
+import '@zhousg/tui-editor/dist/toastui-editor.css' // editor ui
+import '@zhousg/tui-editor/dist/toastui-editor-viewer.css' // editor content
 
-import Editor from 'tui-editor'
+import Editor from '@zhousg/tui-editor'
 import defaultOptions from './default-options'
 
 export default {
