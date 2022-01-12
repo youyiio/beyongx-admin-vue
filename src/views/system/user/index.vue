@@ -37,7 +37,7 @@
             <el-button slot="reference" size="mini" icon="el-icon-s-grid">
               <i class="fa fa-caret-down" aria-hidden="true" />
             </el-button>
-            <el-checkbox> 全选 </el-checkbox>
+            <el-checkbox v-model="allColumnsSelected" :indeterminate="allColumnsSelectedIndeterminate" @change="handleCheckAllChange"> 全选 </el-checkbox>
             <el-checkbox />
           </el-popover>
         </el-button-group>
@@ -124,6 +124,7 @@
       <el-table-column label="昵称" :show-overflow-tooltip="true" prop="nickname" width="120" />
       <el-table-column label="手机号" prop="mobile" width="120" />
       <el-table-column label="邮箱" :show-overflow-tooltip="true" prop="email" width="180" />
+      <!-- <el-table-column label="部门" prop="dept.title" width="80" /> -->
       <el-table-column label="用户角色">
         <template slot-scope="{ row }">
           <span v-for="(role, index) in row.roles" :key="index">
@@ -275,6 +276,9 @@ export default {
     }
     return {
       searchToggle: true,
+      tableColumns: [],
+      allColumnsSelected: true,
+      allColumnsSelectedIndeterminate: false,
       tableKey: 0,
       list: null,
       total: 0,
@@ -332,6 +336,21 @@ export default {
     // 隐藏工具栏
     toggleSearch() {
       this.searchToggle = !this.searchToggle
+    },
+    //
+    handleCheckAllChange(val) {
+      if (val === false) {
+        this.allColumnsSelected = true
+        return
+      }
+      this.tableColumns.forEach(column => {
+        if (!column.visible) {
+          column.visible = true
+          this.updateColumnVisible(column)
+        }
+      })
+      this.allColumnsSelected = val
+      this.allColumnsSelectedIndeterminate = false
     },
     // 全选
     handleSelectionChange(val) {
@@ -398,6 +417,8 @@ export default {
         depts.forEach(dept => {
           if (dept.hasChildren === true) {
             dept.children = null
+          } else {
+            dept.children = undefined
           }
           this.deptOptions.push(dept)
         })
