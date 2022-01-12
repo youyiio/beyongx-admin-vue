@@ -68,7 +68,7 @@ export const loadMenus = (next, to) => {
     rewriteRoutes.push({ path: '*', redirect: '/404', hidden: true })
 
     store.dispatch('GenerateRoutes', rewriteRoutes).then(() => { // 存储路由
-      router.addRoutes(sidebarRoutes) // 动态添加可访问路由表
+      router.addRoutes(rewriteRoutes) // 动态添加可访问路由表
       next({ ...to, replace: true })
     })
     store.dispatch('SetSidebarRoutes', sidebarRoutes)

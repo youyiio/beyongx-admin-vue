@@ -46,9 +46,15 @@
           <span v-else> 否 </span>
         </template>
       </el-table-column>
-      <el-table-column label="目录" align="center" width="75px">
+      <el-table-column label="可见" align="center" width="75px">
         <template slot-scope="{ row }">
           <span v-if="row.isMenu === 1 || row.isMenu === true"> 是 </span>
+          <span v-else> 否 </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="菜单" align="center" width="75px">
+        <template slot-scope="{ row }">
+          <span v-if="row.type === 1"> 是 </span>
           <span v-else> 否 </span>
         </template>
       </el-table-column>
@@ -253,7 +259,11 @@ export default {
       for (const key in this.formData) {
         this.formData[key] = row[key]
       }
-      this.formData['isMenu'] = this.formData['isMenu'] === 1 ? true : this.formData['isMenu']
+      if (this.formData['isMenu'] === 1) {
+        this.formData['isMenu'] = true
+      } else if (this.formData['isMenu'] === 0) {
+        this.formData['isMenu'] = false
+      }
       this.formData = Object.assign(this.formData, { id: row.id })
       this.getMenuSelected(row.pid)
     },

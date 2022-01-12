@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div v-if="$route.name === 'ArticleIndex'" class="app-container">
     <div class="head-container">
       <div v-if="searchToggle">
         <el-form ref="searchForm" :model="listQuery.filters" :inline="true">
@@ -91,6 +91,7 @@
     <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getArticleList()" />
 
   </div>
+  <router-view v-else />
 </template>
 
 <script>
@@ -284,7 +285,7 @@ export default {
     // 新增文章
     handleCreate() {
       this.$router.push({
-        path: '/articleCreate'
+        name: 'ArticleCreate'
       })
     },
     // 编辑文章
