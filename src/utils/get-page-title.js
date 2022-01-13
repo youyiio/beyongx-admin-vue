@@ -1,6 +1,6 @@
 import defaultSettings from '@/settings'
 
-const title = defaultSettings.title || 'Beyongx-后台管理'
+const title = defaultSettings.title || process.env.VUE_APP_NAME
 
 export default function getPageTitle(pageTitle) {
   if (pageTitle) {

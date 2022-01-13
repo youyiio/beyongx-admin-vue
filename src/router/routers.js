@@ -4,13 +4,16 @@ import Layout from '@/layout'
 
 Vue.use(Router)
 
+// 默认是 @/views/login/index,根据项目调整, 修改.env
+const loginComponent = process.env.VUE_APP_LOGIN_COMPONENT
+
 /**
  * 定义无需权限控制页面路径
  */
 export const constantRoutes = [
   {
     path: '/login',
-    component: () => import('@/views/login'),
+    component: (resolve) => require([`@/views/${loginComponent}`], resolve),
     meta: { title: '登录', noCache: true },
     hidden: true
   },
@@ -57,7 +60,7 @@ const router = new Router(
   {
     // mode: 'hash',
     // mode: 'history',
-    mode: process.env.VUE_ROUTER_MODE,
+    mode: process.env.VUE_APP_ROUTER_MODE,
     scrollBehavior: () => ({ y: 0 }),
     routes: constantRoutes
   }

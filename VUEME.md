@@ -1,6 +1,6 @@
 # beyongx-admin-vue
 
-beyongx管理后台前端（Vue版本）
+beyongx管理系统 - 后台前端（Vue版本）
 
 ## 创建项目
 

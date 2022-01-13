@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'Beyongx-后台管理',
+  title: process.env.VUE_APP_NAME,
 
   /**
    * @type {boolean} true | false

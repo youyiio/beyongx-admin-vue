@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      title: 'Beyongx-后台管理',
+      title: process.env.VUE_APP_NAME,
       logo: require('@/assets/logo.png')
     }
   }

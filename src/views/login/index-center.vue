@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="login-container" :style="'background-image:url('+ background +');'">
     <el-form
       ref="loginForm"
       :model="loginForm"
@@ -19,7 +19,7 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="登录账号"
           name="username"
           type="text"
           tabindex="1"
@@ -42,7 +42,7 @@
             ref="password"
             v-model="loginForm.password"
             :type="passwordType"
-            placeholder="Password"
+            placeholder="密码，6-20位字母数字和符号组合"
             name="password"
             tabindex="2"
             autocomplete="on"
@@ -90,6 +90,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import Background from '@/assets/images/background.jpg'
 import SocialSign from './components/SocialSignin'
 
 export default {
@@ -98,7 +99,7 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+        callback(new Error('请输入合法的登录账号'))
       } else {
         callback()
       }
@@ -112,6 +113,7 @@ export default {
     }
     return {
       title: process.env.VUE_APP_NAME,
+      background: Background,
       loginForm: {
         username: 'admin@beyongx.com',
         password: ''
@@ -229,8 +231,8 @@ export default {
 /* Detail see https://github.com/PanJiaChen/vue-element-admin/pull/927 */
 
 $bg: #283443;
-$light_gray: #fff;
-$cursor: #fff;
+$light_gray: #707070;
+$cursor: #707070;
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
   .login-container .el-input input {
@@ -274,26 +276,30 @@ $cursor: #fff;
 <style lang="scss" scoped>
 $bg: #2d3a4b;
 $dark_gray: #889aa4;
-$light_gray: #eee;
+$light_gray: #707070;
 
 .login-container {
-  min-height: 100%;
-  width: 100%;
-  background-color: $bg;
-  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+      height: 100%;
+      background-size: cover;
 
   .login-form {
+      border-radius: 6px;
+      background: #ffffff;
     position: relative;
-    width: 520px;
+    width: 420px;
     max-width: 100%;
-    padding: 160px 35px 0;
+    padding: 25px 25px 5px 25px;
     margin: 0 auto;
     overflow: hidden;
   }
 
   .tips {
     font-size: 14px;
-    color: #fff;
+    color: $dark_gray;
     margin-bottom: 10px;
 
     span {
