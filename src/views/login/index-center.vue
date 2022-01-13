@@ -42,7 +42,7 @@
             ref="password"
             v-model="loginForm.password"
             :type="passwordType"
-            placeholder="密码，6-20位字母数字和符号组合"
+            placeholder="密码，6~20位"
             name="password"
             tabindex="2"
             autocomplete="on"
@@ -61,7 +61,7 @@
       <el-button
         :loading="loading"
         type="primary"
-        style="width: 100%; margin-bottom: 30px"
+        style="width: 100%; margin-bottom: 30px; font-size: 14px"
         @click.native.prevent="handleLogin"
       >登   陆</el-button>
 
@@ -106,7 +106,7 @@ export default {
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('密码不能少于6位'))
+        callback(new Error('密码格式为6~20位字母、数字或符合组合'))
       } else {
         callback()
       }

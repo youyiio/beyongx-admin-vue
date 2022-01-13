@@ -19,7 +19,7 @@
         <el-input
           ref="username"
           v-model="loginForm.username"
-          placeholder="Username"
+          placeholder="登录账号"
           name="username"
           type="text"
           tabindex="1"
@@ -42,7 +42,7 @@
             ref="password"
             v-model="loginForm.password"
             :type="passwordType"
-            placeholder="Password"
+            placeholder="密码，6~20位"
             name="password"
             tabindex="2"
             autocomplete="on"
@@ -61,7 +61,7 @@
       <el-button
         :loading="loading"
         type="primary"
-        style="width: 100%; margin-bottom: 30px"
+        style="width: 100%; margin-bottom: 30px; font-size: 14px"
         @click.native.prevent="handleLogin"
       >登   陆</el-button>
 
@@ -98,14 +98,14 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+        callback(new Error('请输入合法的登录账号'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('密码不能少于6位'))
+        callback(new Error('密码格式为6~20位字母、数字或符合组合'))
       } else {
         callback()
       }
