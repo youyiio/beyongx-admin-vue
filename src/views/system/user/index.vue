@@ -37,8 +37,10 @@
             <el-button slot="reference" size="mini" icon="el-icon-s-grid">
               <i class="fa fa-caret-down" aria-hidden="true" />
             </el-button>
-            <el-checkbox v-model="allColumnsSelected" :indeterminate="allColumnsSelectedIndeterminate" @change="handleCheckAllChange"> 全选 </el-checkbox>
-            <el-checkbox />
+            <el-checkbox v-model="checkAllCloumns" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
+            <el-checkbox-group v-model="checkCloumns" @change="handleCheckCloumnChange">
+              <el-checkbox v-for="(column, index) in tableColumns" :key="index" :label="column.label">{{ column.title }}</el-checkbox>
+            </el-checkbox-group>
           </el-popover>
         </el-button-group>
       </div>
@@ -120,36 +122,43 @@
     <el-table ref="userTable" :key="tableKey" v-loading="listLoading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column :selectable="checkboxDisabled" type="selection" width="50" />
       <el-table-column label="ID" prop="id" align="center" width="80" />
-      <el-table-column label="用户名" :show-overflow-tooltip="true" prop="account" width="120" />
-      <el-table-column label="昵称" :show-overflow-tooltip="true" prop="nickname" width="120" />
-      <el-table-column label="手机号" prop="mobile" width="120" />
-      <el-table-column label="邮箱" :show-overflow-tooltip="true" prop="email" width="180" />
-      <!-- <el-table-column label="部门" prop="dept.title" width="80" /> -->
-      <el-table-column label="用户角色">
+      <el-table-column v-if="tableColumns[0].visible" label="用户名" :show-overflow-tooltip="true" prop="account" width="100" />
+      <el-table-column v-if="tableColumns[1].visible" label="昵称" :show-overflow-tooltip="true" prop="nickname" width="120" />
+      <el-table-column v-if="tableColumns[2].visible" label="手机号" prop="mobile" width="100" />
+      <el-table-column v-if="tableColumns[3].visible" label="邮箱" :show-overflow-tooltip="true" prop="email" width="160" />
+      <el-table-column v-if="tableColumns[4].visible" label="部门" :show-overflow-tooltip="true" prop="dept.title" width="100" />
+      <el-table-column v-if="tableColumns[5].visible" label="岗位">
+        <template slot-scope="{ row }">
+          <span v-for="(job, index) in row.jobs" :key="index">
+            <el-tag v-if="job" type="info" size="mini" effect="plain">{{ job.title }}</el-tag>
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="tableColumns[6].visible" label="用户角色">
         <template slot-scope="{ row }">
           <span v-for="(role, index) in row.roles" :key="index">
             <el-tag v-if="role" type="info" size="mini" effect="plain">{{ role.title }}</el-tag>
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="性别" align="center" width="50">
+      <el-table-column v-if="tableColumns[7].visible" label="性别" align="center" width="50">
         <template slot-scope="{ row }">
           <span> {{ row.sex | sexFilter }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" width="80">
+      <el-table-column v-if="tableColumns[8].visible" label="状态" align="center" width="60">
         <template slot-scope="{ row }">
           <span> {{ row.status | statusFilter }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="启用" align="center" prop="freeze" width="80px">
+      <el-table-column v-if="tableColumns[9].visible" label="启用" align="center" prop="freeze" width="60px">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.freeze" :disabled="user.id === scope.row.id" active-color="#409EFF" inactive-color="#F56C6C" @change="changeFreeze(scope.row)" />
         </template>
       </el-table-column>
-      <el-table-column label="注册时间" prop="registerTime" width="150" />
-      <el-table-column label="最后登录" prop="lastLoginTime" width="150" />
-      <el-table-column label="登录IP" prop="lastLoginIp" width="120" />
+      <el-table-column v-if="tableColumns[10].visible" label="注册时间" prop="registerTime" width="140" />
+      <el-table-column v-if="tableColumns[11].visible" label="最后登录" prop="lastLoginTime" width="140" />
+      <el-table-column v-if="tableColumns[12].visible" label="登录IP" :show-overflow-tooltip="true" prop="lastLoginIp" width="100" />
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="{ row }">
           <el-button v-permission="['user:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -209,6 +218,22 @@ const deptDefaultListQuery = {
     depth: 1
   }
 }
+
+const defaultTableColumns = [
+  { label: 'account', title: '用户名', visible: true },
+  { label: 'nickname', title: '昵称', visible: true },
+  { label: 'mobile', title: '手机号', visible: false },
+  { label: 'email', title: '邮箱', visible: false },
+  { label: 'dept', title: '部门', visible: true },
+  { label: 'jobs', title: '岗位', visible: true },
+  { label: 'roles', title: '用户角色', visible: true },
+  { label: 'sex', title: '性别', visible: false },
+  { label: 'status', title: '状态', visible: true },
+  { label: 'freeze', title: '启用', visible: true },
+  { label: 'registerTime', title: '注册时间', visible: true },
+  { label: 'lastLoginTime', title: '最后登录', visible: false },
+  { label: 'lastLoginIp', title: '登录IP', visible: false }
+]
 
 export default {
   name: 'UserIndex',
@@ -276,9 +301,10 @@ export default {
     }
     return {
       searchToggle: true,
-      tableColumns: [],
-      allColumnsSelected: true,
-      allColumnsSelectedIndeterminate: false,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
+      checkAllCloumns: false,
+      isIndeterminate: true,
+      checkCloumns: [],
       tableKey: 0,
       list: null,
       total: 0,
@@ -324,6 +350,19 @@ export default {
       }
     }
   },
+  watch: {
+    checkCloumns(valArr) {
+      this.tableColumns.forEach(cloumn => {
+        const findIndex = valArr.some(item => item === cloumn.label)
+        if (findIndex !== true) {
+          cloumn.visible = false
+        } else {
+          cloumn.visible = true
+        }
+      })
+      this.key++
+    }
+  },
   computed: {
     ...mapGetters([
       'user'
@@ -331,26 +370,32 @@ export default {
   },
   created() {
     this.getUserList()
+    this.tableColumns.forEach(column => {
+      if (column.visible === true) {
+        this.checkCloumns.push(column.label)
+      }
+    })
   },
   methods: {
     // 隐藏工具栏
     toggleSearch() {
       this.searchToggle = !this.searchToggle
     },
-    //
+    // 列筛选
     handleCheckAllChange(val) {
-      if (val === false) {
-        this.allColumnsSelected = true
-        return
+      if (val) {
+        this.checkCloumns = this.tableColumns.map(item => {
+          return item.label
+        })
+      } else {
+        this.checkCloumns = []
       }
-      this.tableColumns.forEach(column => {
-        if (!column.visible) {
-          column.visible = true
-          this.updateColumnVisible(column)
-        }
-      })
-      this.allColumnsSelected = val
-      this.allColumnsSelectedIndeterminate = false
+      this.isIndeterminate = false
+    },
+    handleCheckCloumnChange(value) {
+      const checkedCount = value.length
+      this.checkAllCloumns = checkedCount === this.tableColumns.length
+      this.isIndeterminate = checkedCount > 0 && checkedCount < this.tableColumns.length
     },
     // 全选
     handleSelectionChange(val) {

@@ -374,7 +374,7 @@ export function filterTree(arr, lazy = false) {
   return arr
 }
 
-export function buildMenus(arr) {
+export function buildMenus(arr, parent = []) {
   const showMenu = []
   arr.forEach(item => {
     if (item.type === 2) {
@@ -387,7 +387,8 @@ export function buildMenus(arr) {
       hidden: !(item.isMenu === 1 || item.isMenu === true),
       meta: { icon: item.icon, noCache: true, title: item.title },
       redirect: 'noRedirect',
-      props: true
+      props: true,
+      fullPath: parent.length === 0 ? path.resolve('/', item.path) : path.resolve(parent.fullPath, item.path)
     }
 
     if (item.pid === 0 && item.type !== 0) {
@@ -400,6 +401,10 @@ export function buildMenus(arr) {
       }
     }
 
+    if (item.type === 1 && (item.isMenu === 0 || item.isMenu === false) && parent.length !== 0) {
+      Object.assign(menu.meta, { activeMenu: parent.fullPath })
+    }
+
     if (item.hasChildren && Array.isArray(item.children)) {
       const findMenu = item.children.some(value => value.isMenu === 1 || value.isMenu === true)
       if (findMenu) {
@@ -407,7 +412,7 @@ export function buildMenus(arr) {
       } else {
         delete (menu.redirect)
       }
-      Object.assign(menu, { children: buildMenus(item.children) })
+      Object.assign(menu, { children: buildMenus(item.children, menu) })
     }
 
     showMenu.push(menu)
