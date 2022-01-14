@@ -26,7 +26,7 @@
           <el-button v-permission="['article:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button v-permission="['article:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="articleSelections.length !== 1" @click="handleUpdate(articleSelections[0])"> 修改 </el-button>
           <el-button v-permission="['article:publish']" class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="publishable" @click="handlePublish(articleSelections)"> 发布 </el-button>
-          <el-popconfirm v-permission="['article:delete']" :title="`确认删除所选${articleSelections.length}条数据吗？`" @onConfirm="handleDelete(articleSelections)">
+          <el-popconfirm v-permission="['article:delete']" :title="`确认删除所选${articleSelections.length}条数据吗？`" @confirm="handleDelete(articleSelections)">
             <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="deleteable"> 删除 </el-button>
           </el-popconfirm>
           <!-- <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload()"> 导出 </el-button> -->
@@ -81,7 +81,7 @@
         <template slot-scope="{ row, $index }">
           <el-button v-permission="['article:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
           <el-button v-permission="['article:publish']" size="mini" type="success" icon="el-icon-thumb" :disabled="row.status === statusOptions[6]" @click="handlePublish(row)" />
-          <el-popconfirm v-permission="['article:delete']" title="确认删除本条数据吗？" style="margin-left: 10px" @onConfirm="handleDelete(row, $index)">
+          <el-popconfirm v-permission="['article:delete']" title="确认删除本条数据吗？" style="margin-left: 10px" @confirm="handleDelete(row, $index)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0]" />
           </el-popconfirm>
         </template>

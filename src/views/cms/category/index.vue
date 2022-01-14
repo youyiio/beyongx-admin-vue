@@ -5,7 +5,7 @@
         <span class="crud-opts-left">
           <el-button v-permission="['category:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button v-permission="['category:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="categorySelections.length !== 1" @click="handleUpdate(categorySelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['category:delete']" :title="`确认删除所选${categorySelections.length}条数据吗？`" @onConfirm="handleDelete(categorySelections[0])">
+          <el-popconfirm v-permission="['category:delete']" :title="`确认删除所选${categorySelections.length}条数据吗？`" @confirm="handleDelete(categorySelections[0])">
             <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="categorySelections.length !== 1"> 删除 </el-button>
           </el-popconfirm>
         </span>
@@ -26,7 +26,7 @@
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button v-permission="['category:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-popconfirm v-permission="['category:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+          <el-popconfirm v-permission="['category:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @confirm="handleDelete(row)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" />
           </el-popconfirm>
         </template>

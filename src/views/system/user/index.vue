@@ -25,7 +25,7 @@
         <span class="crud-opts-left">
           <el-button v-permission="['user:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
           <el-button v-permission="['user:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="userSelections.length !== 1" @click="handleUpdate(userSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['user:delete']" :title="`确认删除所选${userSelections.length}条数据吗？`" @onConfirm="handleDelete(userSelections[0])">
+          <el-popconfirm v-permission="['user:delete']" :title="`确认删除所选${userSelections.length}条数据吗？`" @confirm="handleDelete(userSelections[0])">
             <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="userSelections.length !== 1 || userSelections[0]['status'] === -1"> 删除 </el-button>
           </el-popconfirm>
           <el-button v-permission="['user:updatePassword']" class="filter-item" size="mini" type="warning" icon="el-icon-key" :disabled="userSelections.length !== 1" @click="handlePwdUpdate(userSelections[0])"> 密码修改 </el-button>
@@ -162,7 +162,7 @@
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="{ row }">
           <el-button v-permission="['user:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
-          <el-popconfirm v-permission="['user:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @onConfirm="handleDelete(row)">
+          <el-popconfirm v-permission="['user:delete']" style="margin-left: 10px" title="确认删除本条数据吗？" @confirm="handleDelete(row)">
             <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete" :disabled="row.status === statusOptions[0] || row.id === user.id" />
           </el-popconfirm>
         </template>
@@ -222,12 +222,12 @@ const deptDefaultListQuery = {
 const defaultTableColumns = [
   { label: 'account', title: '用户名', visible: true },
   { label: 'nickname', title: '昵称', visible: true },
-  { label: 'mobile', title: '手机号', visible: false },
-  { label: 'email', title: '邮箱', visible: false },
+  { label: 'mobile', title: '手机号', visible: true },
+  { label: 'email', title: '邮箱', visible: true },
   { label: 'dept', title: '部门', visible: true },
   { label: 'jobs', title: '岗位', visible: true },
   { label: 'roles', title: '用户角色', visible: true },
-  { label: 'sex', title: '性别', visible: false },
+  { label: 'sex', title: '性别', visible: true },
   { label: 'status', title: '状态', visible: true },
   { label: 'freeze', title: '启用', visible: true },
   { label: 'registerTime', title: '注册时间', visible: true },
