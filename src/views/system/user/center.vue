@@ -65,14 +65,6 @@
                   <el-input v-model="formData.nickname" style="width: 35%" />
                   <span style="color: #C0C0C0;margin-left: 10px;">用户昵称不作为登录使用</span>
                 </el-form-item>
-                <el-form-item label="手机号" prop="mobile">
-                  <el-input v-model="formData.mobile" style="width: 35%;" />
-                  <span style="color: #C0C0C0;margin-left: 10px;">手机号码不能重复</span>
-                </el-form-item>
-                <el-form-item label="邮箱" prop="email">
-                  <el-input v-model="formData.email" style="width: 35%;" />
-                  <span style="color: #C0C0C0;margin-left: 10px;">邮箱不能重复</span>
-                </el-form-item>
                 <el-form-item label="签名" prop="description">
                   <el-input v-model="formData.description" style="width: 35%;" />
                 </el-form-item>
@@ -81,6 +73,12 @@
                     <el-radio :label="1">男</el-radio>
                     <el-radio :label="2">女</el-radio>
                   </el-radio-group>
+                </el-form-item>
+                <el-form-item label="QQ" prop="qq">
+                  <el-input v-model="formData.qq" style="width: 35%;" />
+                </el-form-item>
+                <el-form-item label="微信" prop="weixin">
+                  <el-input v-model="formData.weixin" style="width: 35%;" />
                 </el-form-item>
                 <el-form-item label="">
                   <el-button :loading="saveLoading" size="mini" type="primary" @click="handleSaveForm()">保存配置</el-button>
@@ -135,11 +133,11 @@ export default {
     this.formData = {
       id: this.user.id,
       nickname: this.user.nickname,
-      mobile: this.user.mobile,
-      email: this.user.email,
       description: this.user.description,
       sex: this.user.sex,
-      headUrl: this.user.headUrl
+      headUrl: this.user.headUrl,
+      qq: this.user.qq,
+      weixin: this.user.weixin
     }
   },
   methods: {
