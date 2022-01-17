@@ -30,7 +30,7 @@
               </li>
               <li>
                 <svg-icon icon-class="dept" /> 所属部门
-                <div class="user-right"> {{ user.dept.title }} </div>
+                <div class="user-right"> {{ user.dept ? user.dept.title : '' }} </div>
               </li>
               <li>
                 <svg-icon icon-class="phone" /> 手机号码
