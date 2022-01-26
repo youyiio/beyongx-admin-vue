@@ -114,7 +114,7 @@
                 <span style="font-weight: bold;color: #666;font-size: 15px">CPU使用率监控</span>
               </div>
               <div>
-                <v-chart :options="cpuInfo" />
+                <v-chart :option="cpuInfo" class="chart" />
               </div>
             </el-card>
           </el-col>
@@ -124,7 +124,7 @@
                 <span style="font-weight: bold;color: #666;font-size: 15px">内存使用率监控</span>
               </div>
               <div>
-                <v-chart :options="memoryInfo" />
+                <v-chart :option="memoryInfo" class="chart" />
               </div>
             </el-card>
           </el-col>
@@ -136,9 +136,29 @@
 
 <script>
 import ECharts from 'vue-echarts'
-import 'echarts/lib/chart/line'
-import 'echarts/lib/component/polar'
+import { use } from 'echarts/core'
+
+// import ECharts modules manually to reduce bundle size
+import {
+  CanvasRenderer
+} from 'echarts/renderers'
+import {
+  LineChart
+} from 'echarts/charts'
+import {
+  GridComponent,
+  TooltipComponent
+} from 'echarts/components'
+
 import { serverStatus } from '@/api/monitor/server'
+
+use([
+  CanvasRenderer,
+  LineChart,
+  GridComponent,
+  TooltipComponent
+])
+
 export default {
   name: 'ServerIndex',
   components: {
@@ -287,5 +307,8 @@ export default {
     text-align: center;
     margin-top: 5px;
     margin-bottom: 5px;
+  }
+  .chart {
+    height:280px
   }
 </style>
