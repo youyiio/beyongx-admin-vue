@@ -2,26 +2,19 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['job:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['job:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="jobSelections.length !== 1" @click="handleUpdate(jobSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['job:delete']" :title="`确认删除所选${jobSelections.length}条数据吗？`" @confirm="handleDelete(jobSelections[0])">
-            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="jobSelections.length !== 1"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-      </div>
+      <div v-if="searchToggle" />
+      <Toolbar :opt-show="optShow" :selections="jobSelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
     <!-- 表格渲染 -->
     <el-table ref="jobTable" :key="tableKey" v-loading="listLoading" :data="list" style="width: 100%" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
-      <el-table-column label="岗位名称" width="150px" prop="title" />
-      <el-table-column label="英文标识" width="150px" prop="name" />
-      <el-table-column label="描述" :show-overflow-tooltip="true" prop="remark" />
-      <el-table-column label="排序" align="center" width="60px" prop="sort">
+      <el-table-column v-if="tableColumns.title.visible" label="岗位名称" width="150px" prop="title" />
+      <el-table-column v-if="tableColumns.name.visible" label="英文标识" width="150px" prop="name" />
+      <el-table-column v-if="tableColumns.remark.visible" label="描述" :show-overflow-tooltip="true" prop="remark" />
+      <el-table-column v-if="tableColumns.sort.visible" label="排序" align="center" width="60px" prop="sort">
         <template slot-scope="{ row }"> {{ row.sort }} </template>
       </el-table-column>
-      <el-table-column label="创建日期" width="135px" prop="createTime" />
+      <el-table-column v-if="tableColumns.createTime.visible" label="创建日期" width="135px" prop="createTime" />
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button v-permission="['job:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -31,7 +24,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getJobList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
     <!--表单渲染-->
     <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="dialogFormVisible" :title="titleMap[dialogStatus] + '岗位'" width="580px">
       <el-form ref="dataForm" :model="formData" :rules="rules" size="small" label-width="80px">
@@ -57,6 +50,7 @@
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { jobCreate, jobDelete, jobList, jobUpdate } from '@/api/system/job'
 import Pagination from '@/components/Pagination'
 
@@ -68,11 +62,33 @@ const defaultFormData = {
   sort: 999
 }
 
+const defaultTableColumns = {
+  title: { title: '岗位名称', visible: true },
+  name: { title: '英文标识', visible: true },
+  remark: { title: '描述', visible: true },
+  sort: { title: '排序', visible: true },
+  createTime: { title: '创建日期', visible: true }
+}
+
 export default {
   name: 'JobIndex',
-  components: { Pagination },
+  components: { Toolbar, Pagination },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['job:create'],
+        update: ['job:edit'],
+        delete: ['job:delete'],
+        download: ['job:download']
+      },
+      searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       jobSelections: [],
       list: [],
@@ -98,11 +114,11 @@ export default {
     }
   },
   created() {
-    this.getJobList()
+    this.getTableList()
   },
   methods: {
     // 获取岗位列表
-    getJobList() {
+    getTableList() {
       this.listLoading = true
       jobList(this.listQuery).then((res) => {
         this.list = res.data.records
@@ -143,7 +159,7 @@ export default {
                 message: '新增部门成功！',
                 type: 'success'
               })
-              this.getJobList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -185,16 +201,6 @@ export default {
 }
 </script>
 
-<style>
-.crud-opts {
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-    margin-left: auto;
-    float: left;
-}
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
  ::v-deep .el-input-number .el-input__inner {
     text-align: left;

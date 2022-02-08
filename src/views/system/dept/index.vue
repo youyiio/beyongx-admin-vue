@@ -2,15 +2,8 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['dept:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['dept:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="deptSelections.length !== 1" @click="handleUpdate(deptSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['dept:delete']" :title="`确认删除所选${deptSelections.length}条数据吗？`" @confirm="handleDelete(deptSelections[0])">
-            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="deptSelections.length !== 1"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-      </div>
+      <div v-if="searchToggle" />
+      <Toolbar :opt-show="optShow" :selections="deptSelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
     <!-- 表格渲染 -->
     <el-table
@@ -27,13 +20,13 @@
       @select-all="handleSelectAll"
     >
       <el-table-column type="selection" width="50" />
-      <el-table-column label="部门名称" width="150px" prop="title" />
-      <el-table-column label="英文标识" width="150px" prop="name" />
-      <el-table-column label="描述" :show-overflow-tooltip="true" prop="remark" />
-      <el-table-column label="排序" align="center" width="60px" prop="sort">
+      <el-table-column v-if="tableColumns.title.visible" label="部门名称" width="150px" prop="title" />
+      <el-table-column v-if="tableColumns.name.visible" label="英文标识" width="150px" prop="name" />
+      <el-table-column v-if="tableColumns.remark.visible" label="描述" :show-overflow-tooltip="true" prop="remark" />
+      <el-table-column v-if="tableColumns.sort.visible" label="排序" align="center" width="60px" prop="sort">
         <template slot-scope="{ row }"> {{ row.sort }} </template>
       </el-table-column>
-      <el-table-column label="创建日期" width="135px" prop="createTime" />
+      <el-table-column v-if="tableColumns.createTime.visible" label="创建日期" width="135px" prop="createTime" />
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button v-permission="['dept:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -43,7 +36,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getDeptList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
     <!--表单渲染-->
     <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="dialogFormVisible" :title="titleMap[dialogStatus] + '部门'" width="580px">
       <el-form ref="dataForm" :model="formData" :rules="rules" size="small" label-width="80px">
@@ -72,6 +65,7 @@
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { deptCreate, deptDelete, deptList, deptUpdate } from '@/api/system/dept'
 import Pagination from '@/components/Pagination'
 import Treeselect from '@riophae/vue-treeselect'
@@ -97,11 +91,33 @@ const defaultFormData = {
   pid: null
 }
 
+const defaultTableColumns = {
+  title: { title: '部门名称', visible: true },
+  name: { title: '英文标识', visible: true },
+  remark: { title: '描述', visible: true },
+  sort: { title: '排序', visible: true },
+  createTime: { title: '创建日期', visible: true }
+}
+
 export default {
   name: 'DeptIndex',
-  components: { Pagination, Treeselect },
+  components: { Toolbar, Pagination, Treeselect },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['dept:create'],
+        update: ['dept:edit'],
+        delete: ['dept:delete'],
+        download: ['dept:download']
+      },
+      searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       deptSelections: [],
       list: [],
@@ -132,11 +148,11 @@ export default {
     }
   },
   created() {
-    this.getDeptList()
+    this.getTableList()
   },
   methods: {
     // 获取部门列表
-    getDeptList() {
+    getTableList() {
       this.listLoading = true
       deptList(this.listQuery).then((res) => {
         this.list = res.data.records
@@ -218,7 +234,7 @@ export default {
                 message: '新增部门成功！',
                 type: 'success'
               })
-              this.getDeptList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -228,7 +244,7 @@ export default {
                 message: '编辑部门成功！',
                 type: 'success'
               })
-              this.getDeptList()
+              this.getTableList()
             })
           }
         }
@@ -241,7 +257,7 @@ export default {
           message: '删除成功！',
           type: 'success'
         })
-        this.getDeptList()
+        this.getTableList()
       })
     },
     // 全选框操作
@@ -257,16 +273,6 @@ export default {
 }
 </script>
 
-<style>
-.crud-opts {
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-    margin-left: auto;
-    float: left;
-}
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
  ::v-deep .el-input-number .el-input__inner {
     text-align: left;

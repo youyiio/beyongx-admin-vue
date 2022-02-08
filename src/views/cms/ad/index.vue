@@ -15,26 +15,7 @@
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
         </el-form>
       </div>
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['ad:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['ad:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="adSelections.length !== 1" @click="handleUpdate(adSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['ad:delete']" :title="`确认删除所选${adSelections.length}条数据吗？`" @confirm="handleDelete(adSelections[0])">
-            <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="adSelections.length !== 1"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-        <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="getAdList()" />
-          <el-popover placement="bottom-end" width="150" trigger="click">
-            <el-button slot="reference" size="mini" icon="el-icon-s-grid">
-              <i class="fa fa-caret-down" aria-hidden="true" />
-            </el-button>
-            <el-checkbox> 全选 </el-checkbox>
-            <el-checkbox />
-          </el-popover>
-        </el-button-group>
-      </div>
+      <Toolbar :opt-show="optShow" :selections="adSelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
 
     <!--表单组件-->
@@ -65,11 +46,11 @@
     <el-table ref="adTable" :key="tableKey" v-loading="listLoading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
       <el-table-column label="ID" prop="id" align="center" width="80" />
-      <el-table-column label="显示位置" prop="account" width="150" />
-      <el-table-column label="标题" :show-overflow-tooltip="true" prop="title" width="200px" />
-      <el-table-column label="链接" :show-overflow-tooltip="true" prop="url" />
-      <el-table-column label="创建时间" prop="createTime" width="150" />
-      <el-table-column label="排序" prop="sort" align="center" width="80" />
+      <el-table-column v-if="tableColumns.account.visible" label="显示位置" prop="account" width="150" />
+      <el-table-column v-if="tableColumns.title.visible" label="标题" :show-overflow-tooltip="true" prop="title" width="200px" />
+      <el-table-column v-if="tableColumns.url.visible" label="链接" :show-overflow-tooltip="true" prop="url" />
+      <el-table-column v-if="tableColumns.createTime.visible" label="创建时间" prop="createTime" width="150" />
+      <el-table-column v-if="tableColumns.sort.visible" label="排序" prop="sort" align="center" width="80" />
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="{ row }">
           <el-button v-permission="['ad:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -79,11 +60,12 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getAdList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
   </div>
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { adCreate, adDelete, adList, adUpdate, slotList } from '@/api/cms/ad'
 import Pagination from '@/components/Pagination'
 
@@ -104,12 +86,33 @@ const defaultListQuery = {
   }
 }
 
+const defaultTableColumns = {
+  account: { title: '显示位置', visible: true },
+  title: { title: '标题', visible: true },
+  url: { title: '链接', visible: true },
+  createTime: { title: '创建日期', visible: true },
+  sort: { title: '排序', visible: true }
+}
+
 export default {
   name: 'AdIndex',
-  components: { Pagination },
+  components: { Toolbar, Pagination },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['ad:create'],
+        update: ['ad:edit'],
+        delete: ['ad:delete'],
+        download: ['ad:download']
+      },
       searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       list: null,
       total: 0,
@@ -134,20 +137,16 @@ export default {
   },
 
   created() {
-    this.getAdList()
+    this.getTableList()
     this.getSlotsData()
   },
   methods: {
-    // 隐藏工具栏
-    toggleSearch() {
-      this.searchToggle = !this.searchToggle
-    },
     // 全选
     handleSelectionChange(val) {
       this.adSelections = val
     },
     // 获取广告列表
-    getAdList() {
+    getTableList() {
       this.listLoading = true
       adList(this.listQuery).then((res) => {
         this.list = res.data.records
@@ -158,7 +157,7 @@ export default {
     // 根据条件获取广告列表
     handleFilter() {
       this.listQuery.page = 1
-      this.getAdList()
+      this.getTableList()
     },
     // 重置搜索
     handleReset() {
@@ -217,7 +216,7 @@ export default {
                 type: 'success'
               })
               this.listQuery = Object.assign(JSON.parse(JSON.stringify(defaultListQuery)))
-              this.getAdList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -257,21 +256,6 @@ export default {
 }
 </script>
 
-<style>
-.crud-opts {
-  width: 100%;
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-}
-.crud-opts .crud-opts-right {
-	margin-left: auto;
-}
-.crud-opts .crud-opts-right span {
-	float: left;
-}
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
  ::v-deep .el-input-number .el-input__inner {
     text-align: left;

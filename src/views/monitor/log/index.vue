@@ -16,46 +16,54 @@
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
         </el-form>
       </div>
-      <div class="crud-opts">
-        <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="getUserList()" />
-          <el-popover placement="bottom-end" width="150" trigger="click">
-            <el-button slot="reference" size="mini" icon="el-icon-s-grid">
-              <i class="fa fa-caret-down" aria-hidden="true" />
-            </el-button>
-            <el-checkbox> 全选 </el-checkbox>
-            <el-checkbox />
-          </el-popover>
-        </el-button-group>
-      </div>
+      <Toolbar :opt-show="optShow" :selections="logSelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
     <!--表格渲染-->
     <el-table ref="logTable" :key="tableKey" v-loading="listLoading" :data="list">
       <el-table-column label="ID" prop="id" align="center" width="80" />
-      <el-table-column label="用户名" prop="username" width="100" />
-      <el-table-column label="操作名" prop="action" width="100" />
-      <el-table-column label="IP" prop="ip" width="120" />
-      <el-table-column label="来源" prop="address" width="100" />
-      <el-table-column :show-overflow-tooltip="true" label="描述" prop="remark" />
-      <el-table-column :show-overflow-tooltip="true" label="浏览器" prop="userAgent" />
-      <el-table-column label="所属模块" prop="module" width="100" />
-      <el-table-column label="创建时间" prop="createTime" width="180" />
+      <el-table-column v-if="tableColumns.username.visible" label="用户名" prop="username" width="100" />
+      <el-table-column v-if="tableColumns.action.visible" label="操作名" prop="action" width="100" />
+      <el-table-column v-if="tableColumns.ip.visible" label="IP" prop="ip" width="120" />
+      <el-table-column v-if="tableColumns.address.visible" label="来源" prop="address" width="100" />
+      <el-table-column v-if="tableColumns.remark.visible" :show-overflow-tooltip="true" label="描述" prop="remark" />
+      <el-table-column v-if="tableColumns.userAgent.visible" :show-overflow-tooltip="true" label="浏览器" prop="userAgent" />
+      <el-table-column v-if="tableColumns.module.visible" label="所属模块" prop="module" width="100" />
+      <el-table-column v-if="tableColumns.createTime.visible" label="创建时间" prop="createTime" width="180" />
     </el-table>
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getLogList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
   </div>
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { logList } from '@/api/monitor/log'
 import Pagination from '@/components/Pagination'
 
+const defaultTableColumns = {
+  username: { title: '用户名', visible: true },
+  action: { title: '操作名', visible: true },
+  ip: { title: 'IP', visible: true },
+  address: { title: '来源', visible: true },
+  remark: { title: '描述', visible: true },
+  userAgent: { title: '浏览器', visible: true },
+  module: { title: '所属模块', visible: true },
+  createTime: { title: '创建时间', visible: true }
+}
+
 export default {
   name: 'LogList',
-  components: { Pagination },
+  components: { Toolbar, Pagination },
   data() {
     return {
+      optShow: {
+        create: false,
+        update: false,
+        delete: false,
+        download: false
+      },
+      permissions: {},
       searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       list: [],
       total: 0,
@@ -70,15 +78,16 @@ export default {
           username: '',
           dateTime: ''
         }
-      }
+      },
+      logSelections: []
     }
   },
   created() {
-    this.getLogList()
+    this.getTableList()
   },
   methods: {
     // 获取日志列表
-    getLogList() {
+    getTableList() {
       this.listLoading = true
       const queryDateTime = this.listQuery.filters.dateTime
       if (queryDateTime.length === 2 && Array.isArray(queryDateTime)) {
@@ -96,14 +105,10 @@ export default {
         this.listLoading = false
       })
     },
-    // 隐藏工具栏
-    toggleSearch() {
-      this.searchToggle = !this.searchToggle
-    },
     // 根据条件获取用户列表
     handleFilter() {
       this.listQuery.page = 1
-      this.getLogList()
+      this.getTableList()
     },
     // 重置搜索
     handleReset() {
@@ -113,19 +118,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.crud-opts {
-  width: 100%;
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-}
-.crud-opts .crud-opts-right {
-	margin-left: auto;
-}
-.crud-opts .crud-opts-right span {
-	float: left;
-}
-</style>

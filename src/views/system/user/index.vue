@@ -21,29 +21,9 @@
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
         </el-form>
       </div>
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['user:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['user:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="userSelections.length !== 1" @click="handleUpdate(userSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['user:delete']" :title="`确认删除所选${userSelections.length}条数据吗？`" @confirm="handleDelete(userSelections[0])">
-            <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="userSelections.length !== 1 || userSelections[0]['status'] === -1"> 删除 </el-button>
-          </el-popconfirm>
-          <el-button v-permission="['user:updatePassword']" class="filter-item" size="mini" type="warning" icon="el-icon-key" :disabled="userSelections.length !== 1" @click="handlePwdUpdate(userSelections[0])"> 密码修改 </el-button>
-        </span>
-        <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="getUserList()" />
-          <el-popover placement="bottom-end" width="150" trigger="click">
-            <el-button slot="reference" size="mini" icon="el-icon-s-grid">
-              <i class="fa fa-caret-down" aria-hidden="true" />
-            </el-button>
-            <el-checkbox v-model="checkAllCloumns" :indeterminate="isIndeterminate" @change="handleCheckAllChange">全选</el-checkbox>
-            <el-checkbox-group v-model="checkCloumns" @change="handleCheckCloumnChange">
-              <el-checkbox v-for="(column, index) in tableColumns" :key="index" :label="column.label">{{ column.title }}</el-checkbox>
-            </el-checkbox-group>
-          </el-popover>
-        </el-button-group>
-      </div>
+      <Toolbar :opt-show="optShow" :selections="userSelections" :permission="permissions" :table-columns="tableColumns">
+        <el-button slot="middle-3" v-permission="permissions.updatePassword" class="filter-item" size="mini" type="warning" icon="el-icon-key" :disabled="userSelections.length !== 1" @click="handlePwdUpdate(userSelections[0])"> 密码修改 </el-button>
+      </Toolbar>
     </div>
     <!--表单渲染-->
     <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="dialogFormVisible" :title="titleMap[dialogStatus] + '用户'" width="600px">
@@ -122,43 +102,43 @@
     <el-table ref="userTable" :key="tableKey" v-loading="listLoading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column :selectable="checkboxDisabled" type="selection" width="50" />
       <el-table-column label="ID" prop="id" align="center" width="80" />
-      <el-table-column v-if="tableColumns[0].visible" label="用户名" :show-overflow-tooltip="true" prop="account" width="100" />
-      <el-table-column v-if="tableColumns[1].visible" label="昵称" :show-overflow-tooltip="true" prop="nickname" width="120" />
-      <el-table-column v-if="tableColumns[2].visible" label="手机号" prop="mobile" width="100" />
-      <el-table-column v-if="tableColumns[3].visible" label="邮箱" :show-overflow-tooltip="true" prop="email" width="160" />
-      <el-table-column v-if="tableColumns[4].visible" label="部门" :show-overflow-tooltip="true" prop="dept.title" width="100" />
-      <el-table-column v-if="tableColumns[5].visible" label="岗位">
+      <el-table-column v-if="tableColumns.account.visible" label="用户名" :show-overflow-tooltip="true" prop="account" width="100" />
+      <el-table-column v-if="tableColumns.nickname.visible" label="昵称" :show-overflow-tooltip="true" prop="nickname" width="120" />
+      <el-table-column v-if="tableColumns.mobile.visible" label="手机号" prop="mobile" width="100" />
+      <el-table-column v-if="tableColumns.email.visible" label="邮箱" :show-overflow-tooltip="true" prop="email" width="160" />
+      <el-table-column v-if="tableColumns.dept.visible" label="部门" :show-overflow-tooltip="true" prop="dept.title" width="100" />
+      <el-table-column v-if="tableColumns.jobs.visible" label="岗位">
         <template slot-scope="{ row }">
           <span v-for="(job, index) in row.jobs" :key="index">
             <el-tag v-if="job" type="info" size="mini" effect="plain">{{ job.title }}</el-tag>
           </span>
         </template>
       </el-table-column>
-      <el-table-column v-if="tableColumns[6].visible" label="用户角色">
+      <el-table-column v-if="tableColumns.roles.visible" label="用户角色">
         <template slot-scope="{ row }">
           <span v-for="(role, index) in row.roles" :key="index">
             <el-tag v-if="role" type="info" size="mini" effect="plain">{{ role.title }}</el-tag>
           </span>
         </template>
       </el-table-column>
-      <el-table-column v-if="tableColumns[7].visible" label="性别" align="center" width="50">
+      <el-table-column v-if="tableColumns.sex.visible" label="性别" align="center" width="50">
         <template slot-scope="{ row }">
           <span> {{ row.sex | sexFilter }} </span>
         </template>
       </el-table-column>
-      <el-table-column v-if="tableColumns[8].visible" label="状态" align="center" width="60">
+      <el-table-column v-if="tableColumns.status.visible" label="状态" align="center" width="60">
         <template slot-scope="{ row }">
           <span> {{ row.status | statusFilter }} </span>
         </template>
       </el-table-column>
-      <el-table-column v-if="tableColumns[9].visible" label="启用" align="center" prop="freeze" width="60px">
+      <el-table-column v-if="tableColumns.freeze.visible" label="启用" align="center" prop="freeze" width="60px">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.freeze" :disabled="user.id === scope.row.id" active-color="#409EFF" inactive-color="#F56C6C" @change="changeFreeze(scope.row)" />
         </template>
       </el-table-column>
-      <el-table-column v-if="tableColumns[10].visible" label="注册时间" prop="registerTime" width="140" />
-      <el-table-column v-if="tableColumns[11].visible" label="最后登录" prop="lastLoginTime" width="140" />
-      <el-table-column v-if="tableColumns[12].visible" label="登录IP" :show-overflow-tooltip="true" prop="lastLoginIp" width="100" />
+      <el-table-column v-if="tableColumns.registerTime.visible" label="注册时间" prop="registerTime" width="140" />
+      <el-table-column v-if="tableColumns.lastLoginTime.visible" label="最后登录" prop="lastLoginTime" width="140" />
+      <el-table-column v-if="tableColumns.lastLoginIp.visible" label="登录IP" :show-overflow-tooltip="true" prop="lastLoginIp" width="100" />
       <el-table-column label="操作" align="center" width="120">
         <template slot-scope="{ row }">
           <el-button v-permission="['user:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -168,11 +148,12 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getUserList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
   </div>
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { userCreate, userDelete, userFreeze, userList, userModifyPwd, userUnfreeze, userUpdate } from '@/api/system/user'
 import { roleList } from '@/api/system/role'
 import { deptList } from '@/api/system/dept'
@@ -219,25 +200,25 @@ const deptDefaultListQuery = {
   }
 }
 
-const defaultTableColumns = [
-  { label: 'account', title: '用户名', visible: true },
-  { label: 'nickname', title: '昵称', visible: true },
-  { label: 'mobile', title: '手机号', visible: true },
-  { label: 'email', title: '邮箱', visible: true },
-  { label: 'dept', title: '部门', visible: true },
-  { label: 'jobs', title: '岗位', visible: true },
-  { label: 'roles', title: '用户角色', visible: true },
-  { label: 'sex', title: '性别', visible: true },
-  { label: 'status', title: '状态', visible: true },
-  { label: 'freeze', title: '启用', visible: true },
-  { label: 'registerTime', title: '注册时间', visible: true },
-  { label: 'lastLoginTime', title: '最后登录', visible: false },
-  { label: 'lastLoginIp', title: '登录IP', visible: false }
-]
+const defaultTableColumns = {
+  account: { title: '用户名', visible: true },
+  nickname: { title: '昵称', visible: true },
+  mobile: { title: '手机号', visible: true },
+  email: { title: '邮箱', visible: true },
+  dept: { title: '部门', visible: true },
+  jobs: { title: '岗位', visible: true },
+  roles: { title: '用户角色', visible: true },
+  sex: { title: '性别', visible: true },
+  status: { title: '状态', visible: true },
+  freeze: { title: '启用', visible: true },
+  registerTime: { title: '注册时间', visible: true },
+  lastLoginTime: { title: '最后登录', visible: false },
+  lastLoginIp: { title: '登录IP', visible: false }
+}
 
 export default {
   name: 'UserIndex',
-  components: { Pagination, Treeselect },
+  components: { Toolbar, Pagination, Treeselect },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -300,11 +281,21 @@ export default {
       }
     }
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['user:create'],
+        update: ['user:edit'],
+        delete: ['user:delete'],
+        updatePassword: ['user:updatePassword'],
+        download: ['user:download']
+      },
       searchToggle: true,
       tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
-      checkAllCloumns: false,
-      isIndeterminate: true,
-      checkCloumns: [],
       tableKey: 0,
       list: null,
       total: 0,
@@ -350,59 +341,21 @@ export default {
       }
     }
   },
-  watch: {
-    checkCloumns(valArr) {
-      this.tableColumns.forEach(cloumn => {
-        const findIndex = valArr.some(item => item === cloumn.label)
-        if (findIndex !== true) {
-          cloumn.visible = false
-        } else {
-          cloumn.visible = true
-        }
-      })
-      this.key++
-    }
-  },
   computed: {
     ...mapGetters([
       'user'
     ])
   },
   created() {
-    this.getUserList()
-    this.tableColumns.forEach(column => {
-      if (column.visible === true) {
-        this.checkCloumns.push(column.label)
-      }
-    })
+    this.getTableList()
   },
   methods: {
-    // 隐藏工具栏
-    toggleSearch() {
-      this.searchToggle = !this.searchToggle
-    },
-    // 列筛选
-    handleCheckAllChange(val) {
-      if (val) {
-        this.checkCloumns = this.tableColumns.map(item => {
-          return item.label
-        })
-      } else {
-        this.checkCloumns = []
-      }
-      this.isIndeterminate = false
-    },
-    handleCheckCloumnChange(value) {
-      const checkedCount = value.length
-      this.checkAllCloumns = checkedCount === this.tableColumns.length
-      this.isIndeterminate = checkedCount > 0 && checkedCount < this.tableColumns.length
-    },
     // 全选
     handleSelectionChange(val) {
       this.userSelections = val
     },
     // 获取用户列表
-    getUserList() {
+    getTableList() {
       this.listLoading = true
       userList(this.listQuery).then((res) => {
         res.data.records.forEach(element => {
@@ -416,7 +369,7 @@ export default {
     // 根据条件获取用户列表
     handleFilter() {
       this.listQuery.page = 1
-      this.getUserList()
+      this.getTableList()
     },
     // 重置搜索
     handleReset() {
@@ -564,7 +517,7 @@ export default {
                 type: 'success'
               })
               this.listQuery = Object.assign(JSON.parse(JSON.stringify(defaultListQuery)))
-              this.getUserList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {

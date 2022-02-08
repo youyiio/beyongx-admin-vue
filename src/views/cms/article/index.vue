@@ -21,58 +21,39 @@
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
         </el-form>
       </div>
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['article:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['article:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="articleSelections.length !== 1" @click="handleUpdate(articleSelections[0])"> 修改 </el-button>
-          <el-button v-permission="['article:publish']" class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="publishable" @click="handlePublish(articleSelections)"> 发布 </el-button>
-          <el-popconfirm v-permission="['article:delete']" :title="`确认删除所选${articleSelections.length}条数据吗？`" @confirm="handleDelete(articleSelections)">
-            <el-button slot="reference" class="filter-item" size="mini" type="danger" icon="el-icon-delete" :disabled="deleteable"> 删除 </el-button>
-          </el-popconfirm>
-          <!-- <el-button class="filter-item" size="mini" type="warning" icon="el-icon-download" :loading="downloadLoading" @click="handleDownload()"> 导出 </el-button> -->
-        </span>
-        <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="getArticleList()" />
-          <el-popover placement="bottom-end" width="150" trigger="click">
-            <el-button slot="reference" size="mini" icon="el-icon-s-grid">
-              <i class="fa fa-caret-down" aria-hidden="true" />
-            </el-button>
-            <el-checkbox> 全选 </el-checkbox>
-            <el-checkbox />
-          </el-popover>
-        </el-button-group>
-      </div>
+      <Toolbar :opt-show="optShow" :selections="articleSelections" :is-batch="true" :permission="permissions" :table-columns="tableColumns">
+        <el-button slot="middle-2" v-permission="permissions.publish" class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="publishable" @click="handlePublish(articleSelections)"> 发布 </el-button>
+      </Toolbar>
     </div>
 
     <el-table ref="articleTable" :key="tableKey" v-loading="listLoading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
       <el-table-column label="ID" prop="id" align="center" width="80" />
-      <el-table-column label="标题" :show-overflow-tooltip="true">
+      <el-table-column v-if="tableColumns.title.visible" label="标题" :show-overflow-tooltip="true">
         <template slot-scope="{ row }">
           <span class="link-type" @click="handleDetail(row)">{{ row.title }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="所属分类" width="160">
+      <el-table-column v-if="tableColumns.category.visible" label="所属分类" width="160">
         <template slot-scope="{ row }">
           <span v-for="(category, index) in row.categorys" :key="index">
             <el-tag v-if="category" type="info" size="mini" effect="plain">{{ category.title }}</el-tag>
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="作者" prop="author" width="120" />
-      <el-table-column label="状态" class-name="status-col" width="80">
+      <el-table-column v-if="tableColumns.author.visible" label="作者" prop="author" width="120" />
+      <el-table-column v-if="tableColumns.status.visible" label="状态" class-name="status-col" width="80">
         <template slot-scope="{ row }">
           <span> {{ row.status | statusFilter }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="浏览量" prop="readCount" width="80" align="center" />
-      <el-table-column label="发布日期" width="150px" align="center">
+      <el-table-column v-if="tableColumns.readCount.visible" label="浏览量" prop="readCount" width="80" align="center" />
+      <el-table-column v-if="tableColumns.postTime.visible" label="发布日期" width="150px" align="center">
         <template slot-scope="{ row }">
           <span>{{ row.postTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建日期" width="150px" align="center">
+      <el-table-column v-if="tableColumns.createTime.visible" label="创建日期" width="150px" align="center">
         <template slot-scope="{ row }">
           <span>{{ row.createTime }}</span>
         </template>
@@ -88,13 +69,14 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getArticleList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
 
   </div>
   <router-view v-else />
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { articleList, articleDelete, articlePublish } from '@/api/cms/article'
 import { categoryList } from '@/api/cms/category'
 import { parseTime } from '@/utils'
@@ -115,9 +97,19 @@ const defaultListQuery = {
   }
 }
 
+const defaultTableColumns = {
+  title: { title: '标题', visible: true },
+  category: { title: '所属分类', visible: true },
+  author: { title: '作者', visible: true },
+  status: { title: '状态', visible: true },
+  readCount: { title: '浏览量', visible: true },
+  postTime: { title: '发布日期', visible: true },
+  createTime: { title: '创建日期', visible: true }
+}
+
 export default {
   name: 'ArticleIndex',
-  components: { Pagination, Treeselect },
+  components: { Toolbar, Pagination, Treeselect },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -134,10 +126,23 @@ export default {
   },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['article:create'],
+        update: ['article:edit'],
+        delete: ['article:delete'],
+        publish: ['article:publish'],
+        download: ['article:download']
+      },
       searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       publishable: true,
-      deleteable: true,
       articleSelections: [],
       categoryOptions: [],
       normalizer(node) {
@@ -156,19 +161,14 @@ export default {
     }
   },
   created() {
-    this.getArticleList()
+    this.getTableList()
     this.getCategoryList()
   },
   methods: {
-    // 隐藏工具栏
-    toggleSearch() {
-      this.searchToggle = !this.searchToggle
-    },
-
     // 重置搜索
     handleReset() {
       this.$refs.searchForm.resetFields()
-      this.getArticleList()
+      this.getTableList()
     },
 
     // 获取分类列表
@@ -188,7 +188,7 @@ export default {
     },
 
     // 获取文章列表
-    getArticleList() {
+    getTableList() {
       this.listLoading = true
       const queryDateTime = this.listQuery.filters.dateTime
       if (queryDateTime.length === 2 && Array.isArray(queryDateTime)) {
@@ -209,21 +209,16 @@ export default {
     // 根据条件获取文章列表
     handleFilter() {
       this.listQuery.page = 1
-      this.getArticleList()
+      this.getTableList()
     },
     // 全选
     handleSelectionChange(val) {
-      this.deleteable = false
-      this.publishable = false
-      val.forEach(element => {
-        if (element.status === this.statusOptions[0]) {
-          this.deleteable = true
-        }
-        if (element.status === this.statusOptions[6]) {
-          this.publishable = true
-        }
-      })
       this.articleSelections = val
+      this.publishable = !(this.articleSelections.length > 0)
+      const findStatus = val.some(item => item.status === this.statusOptions[6])
+      if (findStatus) {
+        this.publishable = true
+      }
     },
 
     // 发布文章
@@ -244,7 +239,7 @@ export default {
           type: 'success'
         })
         if (Array.isArray(row)) {
-          this.getArticleList()
+          this.getTableList()
         } else {
           row.status = this.statusOptions[6]
         }
@@ -268,7 +263,7 @@ export default {
           type: 'success'
         })
         if (Array.isArray(row)) {
-          this.getArticleList()
+          this.getTableList()
         } else {
           this.list.splice(index, 1)
         }
@@ -336,19 +331,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.crud-opts {
-  width: 100%;
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-}
-.crud-opts .crud-opts-right {
-	margin-left: auto;
-}
-.crud-opts .crud-opts-right span {
-	float: left;
-}
-</style>

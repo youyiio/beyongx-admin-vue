@@ -1,24 +1,17 @@
 <template>
   <div class="app-container">
     <div class="head-container">
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['category:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['category:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="categorySelections.length !== 1" @click="handleUpdate(categorySelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['category:delete']" :title="`确认删除所选${categorySelections.length}条数据吗？`" @confirm="handleDelete(categorySelections[0])">
-            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="categorySelections.length !== 1"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-      </div>
+      <div v-if="searchToggle" />
+      <Toolbar :opt-show="optShow" :selections="categorySelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
     <!-- 表格渲染 -->
     <el-table ref="categoryTable" :key="tableKey" v-loading="listLoading" :data="list" :tree-props="{children: 'children', hasChildren: 'hasChildren'}" row-key="id" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
       <el-table-column type="" label="ID" prop="id" align="center" width="80" />
-      <el-table-column label="分类名称" prop="title" />
-      <el-table-column label="英文名称" prop="name" />
-      <el-table-column label="备注" prop="remark" />
-      <el-table-column label="状态" align="center" prop="enabled">
+      <el-table-column v-if="tableColumns.title.visible" label="分类名称" prop="title" />
+      <el-table-column v-if="tableColumns.name.visible" label="英文名称" prop="name" />
+      <el-table-column v-if="tableColumns.remark.visible" label="备注" prop="remark" />
+      <el-table-column v-if="tableColumns.status.visible" label="状态" align="center" prop="enabled">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.enabled" active-color="#409EFF" inactive-color="#F56C6C" @change="changeEnabled(scope.row)" />
         </template>
@@ -66,11 +59,12 @@
       </div>
     </el-dialog>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getCategoryList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
   </div>
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { categoryList, categoryCreate, categoryUpdate, categoryDelete, categoryStatus } from '@/api/cms/category'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 import { filterTree } from '@/utils'
@@ -79,11 +73,32 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 const defaultFormData = { id: undefined, title: '', name: '', remark: '', isTop: '1', sort: 999, status: 1, pid: null }
 
+const defaultTableColumns = {
+  title: { title: '分类名称', visible: true },
+  name: { title: '英文名称', visible: true },
+  remark: { title: '备注', visible: true },
+  status: { title: '状态', visible: true }
+}
+
 export default {
   name: 'CategoryIndex',
-  components: { Treeselect, Pagination },
+  components: { Toolbar, Treeselect, Pagination },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['category:create'],
+        update: ['category:edit'],
+        delete: ['category:delete'],
+        download: ['category:download']
+      },
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
+      searchToggle: true,
       tableKey: 0,
       categorySelections: [],
       list: [],
@@ -128,7 +143,7 @@ export default {
     }
   },
   created() {
-    this.getCategoryList()
+    this.getTableList()
   },
   methods: {
     // 列表数据增加状态属性
@@ -145,7 +160,7 @@ export default {
       return arr
     },
     // 获取分类列表
-    getCategoryList() {
+    getTableList() {
       this.listLoading = true
       categoryList(this.listQuery).then((res) => {
         const listData = this.setStatusEnabled(res.data.records)
@@ -221,7 +236,7 @@ export default {
                 message: '新增分类成功！',
                 type: 'success'
               })
-              this.getCategoryList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -232,7 +247,7 @@ export default {
                 message: '编辑分类成功！',
                 type: 'success'
               })
-              this.getCategoryList()
+              this.getTableList()
             })
           }
         }
@@ -246,7 +261,7 @@ export default {
           message: '删除成功！',
           type: 'success'
         })
-        this.getCategoryList()
+        this.getTableList()
       })
     },
 
@@ -258,16 +273,6 @@ export default {
 }
 </script>
 
-<style>
-.crud-opts {
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-  margin-left: auto;
-  float: left;
-}
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
  ::v-deep .vue-treeselect__control,::v-deep .vue-treeselect__placeholder,::v-deep .vue-treeselect__single-value {
     height: 30px;

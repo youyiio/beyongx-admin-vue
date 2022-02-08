@@ -15,42 +15,26 @@
           <el-button class="filter-item" size="mini" type="warning" icon="el-icon-refresh-left" @click="handleReset()">重置</el-button>
         </el-form>
       </div>
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['comment:audit']" class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="auditable" @click="handleAudit(commentSelections)"> 审核 </el-button>
-          <el-popconfirm v-permission="['comment:delete']" :title="`确认删除所选${commentSelections.length}条数据吗？`" @confirm="handleDelete(commentSelections)">
-            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="deleteable"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-        <el-button-group class="crud-opts-right">
-          <el-button size="mini" plain type="info" icon="el-icon-search" @click="toggleSearch()" />
-          <el-button size="mini" icon="el-icon-refresh" @click="getCommentList()" />
-          <el-popover placement="bottom-end" width="150" trigger="click">
-            <el-button slot="reference" size="mini" icon="el-icon-s-grid">
-              <i class="fa fa-caret-down" aria-hidden="true" />
-            </el-button>
-            <el-checkbox> 全选 </el-checkbox>
-            <el-checkbox />
-          </el-popover>
-        </el-button-group>
-      </div>
+      <Toolbar :opt-show="optShow" :selections="commentSelections" :is-batch="true" :permission="permissions" :table-columns="tableColumns">
+        <el-button slot="middle-2" v-permission="permissions.audit" class="filter-item" size="mini" type="success" icon="el-icon-thumb" :disabled="auditable" @click="handleAudit(commentSelections)"> 审核 </el-button>
+      </Toolbar>
     </div>
 
     <el-table ref="commentTable" :key="tableKey" v-loading="listLoading" :data="list" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="50" />
       <el-table-column label="ID" prop="id" align="center" width="80" />
-      <el-table-column label="内容" :show-overflow-tooltip="true">
+      <el-table-column v-if="tableColumns.content.visible" label="内容" :show-overflow-tooltip="true">
         <template slot-scope="{ row }">
           <span class="link-type">{{ row.content }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="用户" prop="author" width="120" />
-      <el-table-column label="状态" class-name="status-col" width="80">
+      <el-table-column v-if="tableColumns.author.visible" label="用户" prop="author" width="120" />
+      <el-table-column v-if="tableColumns.status.visible" label="状态" class-name="status-col" width="80">
         <template slot-scope="{ row }">
           <span> {{ row.status | statusFilter }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="评论时间" width="150px" align="center">
+      <el-table-column v-if="tableColumns.createTime.visible" label="评论时间" width="150px" align="center">
         <template slot-scope="{ row }">
           <span>{{ row.createTime }}</span>
         </template>
@@ -65,17 +49,25 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getCommentList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
   </div>
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { commentList, commentAudit, commentDelete } from '@/api/cms/comment'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
+const defaultTableColumns = {
+  content: { title: '内容', visible: true },
+  author: { title: '作者', visible: true },
+  status: { title: '状态', visible: true },
+  createTime: { title: '评论时间', visible: true }
+}
+
 export default {
   name: 'CommentIndex',
-  components: { Pagination },
+  components: { Toolbar, Pagination },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -90,10 +82,20 @@ export default {
   },
   data() {
     return {
+      optShow: {
+        create: false,
+        update: false,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        audit: ['comment:audit'],
+        delete: ['comment:delete']
+      },
       searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       auditable: true,
-      deleteable: true,
       commentSelections: [],
       list: null,
       total: 0,
@@ -106,16 +108,15 @@ export default {
           status: undefined
         }
       },
-      statusOptions: [-1, 0, 1, 2, 3],
-      downloadLoading: false
+      statusOptions: [-1, 0, 1, 2, 3]
     }
   },
   created() {
-    this.getCommentList()
+    this.getTableList()
   },
   methods: {
     // 获取文章列表
-    getCommentList() {
+    getTableList() {
       this.listLoading = true
       commentList(this.listQuery).then((response) => {
         this.list = response.data.records
@@ -123,33 +124,24 @@ export default {
         this.listLoading = false
       })
     },
-    // 隐藏工具栏
-    toggleSearch() {
-      this.searchToggle = !this.searchToggle
-    },
     // 根据条件获取文章列表
     handleFilter() {
       this.listQuery.page = 1
-      this.getCommentList()
+      this.getTableList()
     },
     // 重置搜索
     handleReset() {
       this.$refs.searchForm.resetFields()
-      this.getCommentList()
+      this.getTableList()
     },
 
     handleSelectionChange(val) {
-      this.deleteable = false
-      this.auditable = false
-      val.forEach(element => {
-        if (element.status === this.statusOptions[0]) {
-          this.deleteable = true
-        }
-        if (element.status === this.statusOptions[4]) {
-          this.auditable = true
-        }
-      })
       this.commentSelections = val
+      this.auditable = !(this.commentSelections.length > 0)
+      const findStatus = val.some(item => item.status === this.statusOptions[4])
+      if (findStatus) {
+        this.auditable = true
+      }
     },
 
     // 审核文章
@@ -171,7 +163,7 @@ export default {
           type: 'success'
         })
         if (Array.isArray(row)) {
-          this.getCommentList()
+          this.getTableList()
         } else {
           row.status = this.statusOptions[4]
         }
@@ -195,7 +187,7 @@ export default {
           type: 'success'
         })
         if (Array.isArray(row)) {
-          this.getCommentList()
+          this.getTableList()
         } else {
           this.list.splice(index, 1)
         }
@@ -205,18 +197,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.crud-opts {
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-}
-.crud-opts .crud-opts-right {
-	margin-left: auto;
-}
-.crud-opts .crud-opts-right span {
-	float: left;
-}
-</style>

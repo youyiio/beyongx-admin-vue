@@ -1,16 +1,9 @@
 <template>
   <div class="app-container">
     <!--工具栏-->
-    <div class="head-container" style="height:57px">
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['role:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['role:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="roleSelections.length !== 1" @click="handleUpdate(roleSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['role:delete']" :title="`确认删除所选${roleSelections.length}条数据吗？`" @confirm="handleDelete(roleSelections[0])">
-            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="roleSelections.length !== 1"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-      </div>
+    <div class="head-container">
+      <div v-if="searchToggle" />
+      <Toolbar :opt-show="optShow" :selections="roleSelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
     <!-- 表格渲染 -->
     <el-row :gutter="15">
@@ -22,10 +15,10 @@
           </div>
           <el-table ref="roleTable" :key="tableKey" v-loading="listLoading" highlight-current-row style="width: 100%;" :data="list" @selection-change="handleSelectionChange" @current-change="handleCurrentChange">
             <el-table-column type="selection" width="50" />
-            <el-table-column label="角色名称" prop="title" />
-            <el-table-column label="角色标识" prop="name" />
-            <el-table-column :show-overflow-tooltip="true" label="角色描述" prop="remark" />
-            <el-table-column width="135px" label="创建日期" prop="createTime" />
+            <el-table-column v-if="tableColumns.title.visible" label="角色名称" prop="title" />
+            <el-table-column v-if="tableColumns.name.visible" label="角色标识" prop="name" />
+            <el-table-column v-if="tableColumns.remark.visible" :show-overflow-tooltip="true" label="角色描述" prop="remark" />
+            <el-table-column v-if="tableColumns.createTime.visible" width="135px" label="创建日期" prop="createTime" />
             <el-table-column label="操作" width="130px" align="center" fixed="right">
               <template slot-scope="{ row }">
                 <el-button v-permission="['role:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -36,7 +29,7 @@
             </el-table-column>
           </el-table>
           <!--分页组件-->
-          <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getRoleList()" />
+          <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
         </el-card>
       </el-col>
       <!-- 菜单授权 -->
@@ -86,6 +79,7 @@
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { roleCreate, roleDelete, roleList, roleMenuUpdate, roleUpdate } from '@/api/system/role'
 import { menuList } from '@/api/system/menu'
 import Pagination from '@/components/Pagination'
@@ -112,11 +106,32 @@ const defaultFormData = {
   remark: ''
 }
 
+const defaultTableColumns = {
+  title: { title: '角色名称', visible: true },
+  name: { title: '角色标识', visible: true },
+  remark: { title: '角色描述', visible: true },
+  createTime: { title: '创建日期', visible: true }
+}
+
 export default {
   name: 'RoleIndex',
-  components: { Pagination },
+  components: { Toolbar, Pagination },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['role:create'],
+        update: ['role:edit'],
+        delete: ['role:delete'],
+        download: ['role:download']
+      },
+      searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       roleSelections: [],
       list: [],
@@ -145,11 +160,11 @@ export default {
     }
   },
   created() {
-    this.getRoleList()
+    this.getTableList()
   },
   methods: {
     // 获取角色列表
-    getRoleList() {
+    getTableList() {
       this.listLoading = true
       roleList(this.listQuery).then((res) => {
         this.list = res.data.records
@@ -209,7 +224,7 @@ export default {
                 type: 'success'
               })
               this.listQuery = Object.assign(JSON.parse(JSON.stringify(defaultListQuery)))
-              this.getRoleList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -349,19 +364,4 @@ export default {
     border: 0;
     padding: 0;
   }
-</style>
-<style>
-.crud-opts {
-  width: 100%;
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-}
-.crud-opts .crud-opts-right {
-	margin-left: auto;
-}
-.crud-opts .crud-opts-right span {
-	float: left;
-}
 </style>

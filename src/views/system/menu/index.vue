@@ -2,15 +2,8 @@
   <div class="app-container">
     <!--工具栏-->
     <div class="head-container">
-      <div class="crud-opts">
-        <span class="crud-opts-left">
-          <el-button v-permission="['menu:create']" class="filter-item" size="mini" type="primary" icon="el-icon-plus" @click="handleCreate()"> 新增 </el-button>
-          <el-button v-permission="['menu:edit']" class="filter-item" size="mini" type="success" icon="el-icon-edit" :disabled="menuSelections.length !== 1" @click="handleUpdate(menuSelections[0])"> 修改 </el-button>
-          <el-popconfirm v-permission="['menu:delete']" :title="`确认删除所选${menuSelections.length}条数据吗？`" @confirm="handleDelete(menuSelections[0])">
-            <el-button slot="reference" class="filter-item" type="danger" icon="el-icon-delete" size="mini" :disabled="menuSelections.length !== 1"> 删除 </el-button>
-          </el-popconfirm>
-        </span>
-      </div>
+      <div v-if="searchToggle" />
+      <Toolbar :opt-show="optShow" :selections="menuSelections" :permission="permissions" :table-columns="tableColumns" />
     </div>
     <!-- 表格渲染 -->
     <el-table
@@ -27,38 +20,38 @@
       @select-all="handleSelectAll"
     >
       <el-table-column type="selection" width="50" />
-      <el-table-column label="菜单标题" width="160px" prop="title" />
-      <el-table-column label="图标" align="center" width="60px" prop="icon">
+      <el-table-column v-if="tableColumns.title.visible" label="菜单标题" width="160px" prop="title" />
+      <el-table-column v-if="tableColumns.icon.visible" label="图标" align="center" width="60px" prop="icon">
         <template slot-scope="{ row }">
           <svg-icon :icon-class="row.icon ? row.icon : ''" />
         </template>
       </el-table-column>
-      <el-table-column label="排序" align="center" width="60px" prop="sort">
+      <el-table-column v-if="tableColumns.sort.visible" label="排序" align="center" width="60px" prop="sort">
         <template slot-scope="{ row }"> {{ row.sort }} </template>
       </el-table-column>
-      <el-table-column label="路由地址" prop="path" />
-      <el-table-column label="权限标识" width="150px" prop="permission" />
-      <el-table-column label="组件名称" width="150px" prop="name" />
-      <el-table-column label="组件地址" prop="component" />
-      <el-table-column label="外链" align="center" width="75px">
+      <el-table-column v-if="tableColumns.path.visible" label="路由地址" prop="path" />
+      <el-table-column v-if="tableColumns.permission.visible" label="权限标识" width="150px" prop="permission" />
+      <el-table-column v-if="tableColumns.name.visible" label="组件名称" width="150px" prop="name" />
+      <el-table-column v-if="tableColumns.component.visible" label="组件地址" prop="component" />
+      <el-table-column v-if="tableColumns.link.visible" label="外链" align="center" width="75px">
         <template slot-scope="{ row }">
           <span v-if="row.type === 0"> 是 </span>
           <span v-else> 否 </span>
         </template>
       </el-table-column>
-      <el-table-column label="可见" align="center" width="75px">
+      <el-table-column v-if="tableColumns.show.visible" label="可见" align="center" width="75px">
         <template slot-scope="{ row }">
           <span v-if="row.isMenu === 1 || row.isMenu === true"> 是 </span>
           <span v-else> 否 </span>
         </template>
       </el-table-column>
-      <el-table-column label="菜单" align="center" width="75px">
+      <el-table-column v-if="tableColumns.menu.visible" label="菜单" align="center" width="75px">
         <template slot-scope="{ row }">
           <span v-if="row.type === 1"> 是 </span>
           <span v-else> 否 </span>
         </template>
       </el-table-column>
-      <el-table-column label="创建日期" width="135px" prop="createTime" />
+      <el-table-column v-if="tableColumns.createTime.visible" label="创建日期" width="135px" prop="createTime" />
       <el-table-column label="操作" align="center" width="230">
         <template slot-scope="{ row }">
           <el-button v-permission="['menu:edit']" size="mini" type="primary" icon="el-icon-edit" @click="handleUpdate(row)" />
@@ -68,7 +61,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getMenuList()" />
+    <pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.size" @pagination="getTableList()" />
     <!--表单渲染-->
     <el-dialog append-to-body :close-on-click-modal="false" :visible.sync="dialogFormVisible" :title="titleMap[dialogStatus] + '菜单'" width="580px">
       <el-form ref="dataForm" :inline="true" :model="formData" :rules="rules" size="small" label-width="80px">
@@ -128,6 +121,7 @@
 </template>
 
 <script>
+import Toolbar from '@/components/Toolbar'
 import { menuCreate, menuDelete, menuList, menuUpdate } from '@/api/system/menu'
 import IconSelect from '@/components/IconSelect'
 import Pagination from '@/components/Pagination'
@@ -160,11 +154,39 @@ const defaultFormData = {
   pid: null
 }
 
+const defaultTableColumns = {
+  title: { title: '菜单标题', visible: true },
+  icon: { title: '图标', visible: true },
+  sort: { title: '排序', visible: true },
+  path: { title: '路由地址', visible: true },
+  permission: { title: '权限标识', visible: true },
+  name: { title: '组件名称', visible: true },
+  component: { title: '组件地址', visible: true },
+  link: { title: '外链', visible: true },
+  show: { title: '可见', visible: true },
+  menu: { title: '菜单', visible: true },
+  createTime: { title: '创建日期', visible: true }
+}
+
 export default {
   name: 'MenuIndex',
-  components: { IconSelect, Treeselect, Pagination },
+  components: { Toolbar, IconSelect, Treeselect, Pagination },
   data() {
     return {
+      optShow: {
+        create: true,
+        update: true,
+        delete: true,
+        download: false
+      },
+      permissions: {
+        create: ['menu:create'],
+        update: ['menu:edit'],
+        delete: ['menu:delete'],
+        download: ['menu:download']
+      },
+      searchToggle: true,
+      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
       tableKey: 0,
       menuSelections: [],
       list: [],
@@ -197,11 +219,11 @@ export default {
     }
   },
   created() {
-    this.getMenuList()
+    this.getTableList()
   },
   methods: {
     // 获取菜单列表
-    getMenuList() {
+    getTableList() {
       this.listLoading = true
       menuList(this.listQuery).then((res) => {
         this.list = res.data.records
@@ -300,7 +322,7 @@ export default {
                 message: '新增菜单成功！',
                 type: 'success'
               })
-              this.getMenuList()
+              this.getTableList()
             })
           }
           if (this.dialogStatus === 'update') {
@@ -310,7 +332,7 @@ export default {
                 message: '编辑菜单成功！',
                 type: 'success'
               })
-              this.getMenuList()
+              this.getTableList()
             })
           }
         }
@@ -323,7 +345,7 @@ export default {
           message: '删除成功！',
           type: 'success'
         })
-        this.getMenuList()
+        this.getTableList()
       })
     },
     // 全选框操作
@@ -343,16 +365,6 @@ export default {
 }
 </script>
 
-<style>
-.crud-opts {
-	padding: 4px 0;
-	display: -webkit-flex;
-	display: flex;
-	align-items: center;
-    margin-left: auto;
-    float: left;
-}
-</style>
 <style rel="stylesheet/scss" lang="scss" scoped>
  ::v-deep .el-input-number .el-input__inner {
     text-align: left;
