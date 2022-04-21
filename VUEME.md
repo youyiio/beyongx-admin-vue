@@ -15,8 +15,21 @@ vue --version
 
 ### 安装依赖
 
+淘宝定制的cnpm
+npm install -g cnpm --registry=https://registry.npmmirror.com/
+
+全局淘宝镜像
+npm config set registry https://registry.npmmirror.com/
+
+查看配置
+npm config get 
+
 ```
 npm install
+```
+或者
+```
+npm install --registry=https://registry.npmmirror.com/
 ```
 
 ### 清理缓存
