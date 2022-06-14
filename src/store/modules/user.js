@@ -4,6 +4,7 @@ import { getToken, setToken, removeToken } from '@/utils/auth'
 const user = {
   state: {
     token: getToken(),
+    tokenExpired: false,
     user: {},
     roles: [],
     // 第一次加载菜单时用到
@@ -25,6 +26,9 @@ const user = {
     },
     SET_LOAD_MENUS: (state, loadMenus) => {
       state.loadMenus = loadMenus
+    },
+    SET_TOKEN_EXPIRED: (state, tokenExpired) => {
+      state.tokenExpired = tokenExpired
     }
   },
 
@@ -79,6 +83,11 @@ const user = {
       return new Promise(resolve => {
         setLogout(commit)
         resolve()
+      })
+    },
+    TokenExpired({ commit }, tokenExpired) {
+      return new Promise((resolve, reject) => {
+        commit('SET_TOKEN_EXPIRED', tokenExpired)
       })
     }
   }
