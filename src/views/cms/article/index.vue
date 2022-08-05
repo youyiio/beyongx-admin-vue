@@ -76,258 +76,256 @@
 </template>
 
 <script>
-import Toolbar from '@/components/Toolbar'
-import { articleList, articleDelete, articlePublish } from '@/api/cms/article'
-import { categoryList } from '@/api/cms/category'
-import { parseTime } from '@/utils'
-import Pagination from '@/components/Pagination'
-import Treeselect from '@riophae/vue-treeselect'
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+  import Toolbar from '@/components/Toolbar'
+  import { articleList, articleDelete, articlePublish } from '@/api/cms/article'
+  import { categoryList } from '@/api/cms/category'
+  import { parseTime } from '@/utils'
+  import Pagination from '@/components/Pagination'
+  import Treeselect from '@riophae/vue-treeselect'
+  import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
-const defaultListQuery = {
-  page: 1,
-  size: 20,
-  filters: {
-    keyword: undefined,
-    status: undefined,
-    categoryId: undefined,
-    dateTime: '',
-    startTime: '',
-    endTime: ''
+  const defaultListQuery = {
+    page: 1,
+    size: 20,
+    filters: {
+      keyword: undefined,
+      status: undefined,
+      categoryId: undefined,
+      dateTime: '',
+      startTime: '',
+      endTime: ''
+    }
   }
-}
 
-const defaultTableColumns = {
-  title: { title: '标题', visible: true },
-  category: { title: '所属分类', visible: true },
-  author: { title: '作者', visible: true },
-  status: { title: '状态', visible: true },
-  readCount: { title: '浏览量', visible: true },
-  postTime: { title: '发布日期', visible: true },
-  createTime: { title: '创建日期', visible: true }
-}
+  const defaultTableColumns = {
+    title: { title: '标题', visible: true },
+    category: { title: '所属分类', visible: true },
+    author: { title: '作者', visible: true },
+    status: { title: '状态', visible: true },
+    readCount: { title: '浏览量', visible: true },
+    postTime: { title: '发布日期', visible: true },
+    createTime: { title: '创建日期', visible: true }
+  }
 
-export default {
-  name: 'ArticleIndex',
-  components: { Toolbar, Pagination, Treeselect },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        '-1': '已删除',
-        0: '草稿',
-        1: '申请发布',
-        2: '初审拒绝',
-        3: '初审通过',
-        4: '终审拒绝',
-        5: '已发布'
-      }
-      return statusMap[status]
-    }
-  },
-  data() {
-    return {
-      optShow: {
-        create: true,
-        update: true,
-        delete: true,
-        download: false
-      },
-      permissions: {
-        create: ['article:create'],
-        update: ['article:edit'],
-        delete: ['article:delete'],
-        publish: ['article:publish'],
-        download: ['article:download']
-      },
-      searchToggle: true,
-      tableColumns: Object.assign(JSON.parse(JSON.stringify(defaultTableColumns))),
-      tableKey: 0,
-      publishable: true,
-      articleSelections: [],
-      categoryOptions: [],
-      normalizer(node) {
-        return {
-          id: node.id,
-          label: node.title,
-          children: node.children
+  export default {
+    name: 'ArticleIndex',
+    components: { Toolbar, Pagination, Treeselect },
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          '-1': '已删除',
+          0: '草稿',
+          1: '申请发布',
+          2: '初审拒绝',
+          3: '初审通过',
+          4: '终审拒绝',
+          5: '已发布'
         }
-      },
-      list: null,
-      total: 0,
-      listLoading: true,
-      listQuery: Object.assign(JSON.parse(JSON.stringify(defaultListQuery))),
-      statusOptions: [-1, 0, 1, 2, 3, 4, 5],
-      downloadLoading: false
-    }
-  },
-  created() {
-    this.getTableList()
-    this.getCategoryList()
-  },
-  methods: {
-    // 重置搜索
-    handleReset() {
-      this.$refs.searchForm.resetFields()
+        return statusMap[status]
+      }
+    },
+    data() {
+      return {
+        optShow: {
+          create: true,
+          update: true,
+          delete: true,
+          download: false
+        },
+        permissions: {
+          create: ['article:create'],
+          update: ['article:edit'],
+          delete: ['article:delete'],
+          publish: ['article:publish'],
+          download: ['article:download']
+        },
+        searchToggle: true,
+        tableColumns: Object.assign(
+          JSON.parse(JSON.stringify(defaultTableColumns))
+        ),
+        tableKey: 0,
+        publishable: true,
+        articleSelections: [],
+        categoryOptions: [],
+        normalizer(node) {
+          return {
+            id: node.id,
+            label: node.title,
+            children: node.children
+          }
+        },
+        list: null,
+        total: 0,
+        listLoading: true,
+        listQuery: Object.assign(JSON.parse(JSON.stringify(defaultListQuery))),
+        statusOptions: [-1, 0, 1, 2, 3, 4, 5],
+        downloadLoading: false
+      }
+    },
+    created() {
       this.getTableList()
+      this.getCategoryList()
     },
+    methods: {
+      // 重置搜索
+      handleReset() {
+        this.$refs.searchForm.resetFields()
+        this.getTableList()
+      },
 
-    // 获取分类列表
-    getCategoryList() {
-      const categoryParams = {
-        page: 1,
-        size: 50,
-        filters: {
-          struct: 'tree',
-          pid: 0,
-          depth: 5
+      // 获取分类列表
+      getCategoryList() {
+        const categoryParams = {
+          page: 1,
+          size: 50,
+          filters: {
+            struct: 'tree',
+            pid: 0,
+            depth: 5
+          }
         }
-      }
-      categoryList(categoryParams).then((res) => {
-        this.categoryOptions = res.data.records
-      })
-    },
-
-    // 获取文章列表
-    getTableList() {
-      this.listLoading = true
-      const queryDateTime = this.listQuery.filters.dateTime
-      if (queryDateTime.length === 2 && Array.isArray(queryDateTime)) {
-        this.listQuery.filters.startTime = queryDateTime[0]
-        this.listQuery.filters.endTime = queryDateTime[1]
-      } else {
-        this.listQuery.filters.startTime = ''
-        this.listQuery.filters.endTime = ''
-      }
-      const queryDatas = Object.assign(JSON.parse(JSON.stringify(this.listQuery)))
-      queryDatas.filters.dateTime = undefined
-      articleList(queryDatas).then((response) => {
-        this.list = response.data.records
-        this.total = response.data.total
-        this.listLoading = false
-      })
-    },
-    // 根据条件获取文章列表
-    handleFilter() {
-      this.listQuery.page = 1
-      this.getTableList()
-    },
-    // 全选
-    handleSelectionChange(val) {
-      this.articleSelections = val
-      this.publishable = !(this.articleSelections.length > 0)
-      const findStatus = val.some(item => item.status === this.statusOptions[6])
-      if (findStatus) {
-        this.publishable = true
-      }
-    },
-
-    // 发布文章
-    handlePublish(row) {
-      const publishParams = {}
-      const articleIds = []
-      if (Array.isArray(row)) {
-        for (const item of row) {
-          articleIds.push(item.id)
-        }
-        publishParams.ids = articleIds
-      } else {
-        publishParams.id = row.id
-      }
-      articlePublish(publishParams).then((res) => {
-        this.$message({
-          message: '发布成功',
-          type: 'success'
+        categoryList(categoryParams).then(res => {
+          this.categoryOptions = res.data.records
         })
-        if (Array.isArray(row)) {
-          this.getTableList()
+      },
+
+      // 获取文章列表
+      getTableList() {
+        this.listLoading = true
+        const queryDateTime = this.listQuery.filters.dateTime
+        if (queryDateTime.length === 2 && Array.isArray(queryDateTime)) {
+          this.listQuery.filters.startTime = queryDateTime[0]
+          this.listQuery.filters.endTime = queryDateTime[1]
         } else {
-          row.status = this.statusOptions[6]
+          this.listQuery.filters.startTime = ''
+          this.listQuery.filters.endTime = ''
         }
-      })
-    },
-    // 删除文章
-    handleDelete(row, index) {
-      const deleteParams = {}
-      const articleIds = []
-      if (Array.isArray(row)) {
-        for (const item of row) {
-          articleIds.push(item.id)
-        }
-        deleteParams.ids = articleIds
-      } else {
-        deleteParams.id = row.id
-      }
-      articleDelete(deleteParams).then((response) => {
-        this.$message({
-          message: '删除成功',
-          type: 'success'
+        const queryDatas = Object.assign(
+          JSON.parse(JSON.stringify(this.listQuery))
+        )
+        queryDatas.filters.dateTime = undefined
+        articleList(queryDatas).then(response => {
+          this.list = response.data.records
+          this.total = response.data.total
+          this.listLoading = false
         })
-        if (Array.isArray(row)) {
-          this.getTableList()
-        } else {
-          this.list.splice(index, 1)
+      },
+      // 根据条件获取文章列表
+      handleFilter() {
+        this.listQuery.page = 1
+        this.getTableList()
+      },
+      // 全选
+      handleSelectionChange(val) {
+        this.articleSelections = val
+        this.publishable = !(this.articleSelections.length > 0)
+        const findStatus = val.some(item => item.status === this.statusOptions[6])
+        if (findStatus) {
+          this.publishable = true
         }
-      })
-    },
-    // 文章详情
-    handleDetail(row) {
-      this.$router.push({
-        name: 'ArticleDetail',
-        // path: '/articleDetail',
-        params: { articleId: row.id }
-      })
-    },
-    // 新增文章
-    handleCreate() {
-      this.$router.push({
-        name: 'ArticleCreate'
-      })
-    },
-    // 编辑文章
-    handleUpdate(row) {
-      this.$router.push({
-        name: 'ArticleUpdate',
-        // path: '/cms/articleUpdate',
-        params: {
-          articleId: row.id,
-          operStatus: 'update'
-          // formData: row
-        }
-      })
-    },
+      },
 
-    // 导出文章
-    handleDownload() {
-      this.downloadLoading = true
-      import('@/vendor/Export2Excel').then((excel) => {
-        const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-        const filterVal = [
-          'timestamp',
-          'title',
-          'type',
-          'importance',
-          'status'
-        ]
-        const data = this.formatJson(filterVal)
-        excel.export_json_to_excel({
-          header: tHeader,
-          data,
-          filename: 'table-list'
-        })
-        this.downloadLoading = false
-      })
-    },
-    formatJson(filterVal) {
-      return this.list.map((v) =>
-        filterVal.map((j) => {
-          if (j === 'timestamp') {
-            return parseTime(v[j])
+      // 发布文章
+      handlePublish(row) {
+        const publishParams = {}
+        const articleIds = []
+        if (Array.isArray(row)) {
+          for (const item of row) {
+            articleIds.push(item.id)
+          }
+          publishParams.ids = articleIds
+        } else {
+          publishParams.id = row.id
+        }
+        articlePublish(publishParams).then(res => {
+          this.$message({
+            message: '发布成功',
+            type: 'success'
+          })
+          if (Array.isArray(row)) {
+            this.getTableList()
           } else {
-            return v[j]
+            row.status = this.statusOptions[6]
           }
         })
-      )
+      },
+      // 删除文章
+      handleDelete(row, index) {
+        const deleteParams = {}
+        const articleIds = []
+        if (Array.isArray(row)) {
+          for (const item of row) {
+            articleIds.push(item.id)
+          }
+          deleteParams.ids = articleIds
+        } else {
+          deleteParams.id = row.id
+        }
+        articleDelete(deleteParams).then(response => {
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          })
+          if (Array.isArray(row)) {
+            this.getTableList()
+          } else {
+            this.list.splice(index, 1)
+          }
+        })
+      },
+      // 文章详情
+      handleDetail(row) {
+        this.$router.push({
+          name: 'ArticleDetail',
+          // path: '/articleDetail',
+          params: { articleId: row.id }
+        })
+      },
+      // 新增文章
+      handleCreate() {
+        this.$router.push({
+          name: 'ArticleCreate'
+        })
+      },
+      // 编辑文章
+      handleUpdate(row) {
+        this.$router.push({
+          name: 'ArticleUpdate',
+          // path: '/cms/articleUpdate',
+          params: {
+            articleId: row.id,
+            operStatus: 'update'
+            // formData: row
+          }
+        })
+      },
+
+      // 导出文章
+      handleDownload() {
+        this.downloadLoading = true
+        import('@/vendor/Export2Excel').then(excel => {
+          const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
+          const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+          const data = this.formatJson(filterVal)
+          excel.export_json_to_excel({
+            header: tHeader,
+            data,
+            filename: 'table-list'
+          })
+          this.downloadLoading = false
+        })
+      },
+      formatJson(filterVal) {
+        return this.list.map(v =>
+          filterVal.map(j => {
+            if (j === 'timestamp') {
+              return parseTime(v[j])
+            } else {
+              return v[j]
+            }
+          })
+        )
+      }
     }
   }
-}
 </script>
